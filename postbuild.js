@@ -1,0 +1,229 @@
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+
+const ROOT = __dirname;
+const DIST = path.join(ROOT, 'dist');
+const SITE = 'https://actaicompliance.com';
+const NAME = 'ActAI Compliance';
+const EMAIL = 'isaac@actaicompliance.com';
+const KEY = '69a9a34a62654421992f41db833ac23a';
+const VERIFIED = '2026-10-11';
+const ORDER = ['eu-ai-act-explained', 'us-ai-regulation', 'uk-ai-regulation', 'canada-ai-regulation', 'which-ai-laws-apply-to-you'];
+
+const DIAGRAMS = {
+  'eu-ai-act-explained': [
+    { file: 'eu-risk-tiers.svg', w: 640, h: 418, before: 'what-changed-in-2026', alt: 'Diagram of the four EU AI Act risk tiers: unacceptable risk is banned, high risk has strict duties, transparency risk requires disclosure, and minimal risk has no specific duties.', caption: 'The four EU AI Act risk tiers, from banned uses to minimal risk.' },
+    { file: 'eu-timeline.svg', w: 640, h: 500, before: 'what-high-risk-providers-must-prepare', alt: 'Timeline of EU AI Act dates: 1 August 2024 entry into force, 2 February 2025 bans, 2 August 2025 general-purpose AI rules, 2 August 2026 transparency duties, 2 December 2027 Annex III high-risk rules and 2 August 2028 Annex I high-risk rules.', caption: 'Key EU AI Act dates after the 2026 AI Omnibus.' }
+  ],
+  'eu-ai-act-annex-iv-technical-documentation': [
+    { file: 'annex-iv-sections.svg', w: 640, h: 548, before: 'how-long-to-keep-it', alt: 'The nine sections of Annex IV technical documentation, from the general description of the system to the post-market monitoring plan.', caption: 'The nine sections of Annex IV technical documentation.' }
+  ],
+  'eu-ai-act-conformity-assessment': [
+    { file: 'conformity-routes.svg', w: 640, h: 584, before: 'which-route-applies-to-you', alt: 'Flow showing the two conformity assessment routes, internal control under Annex VI or a notified body under Annex VII, followed by the EU declaration of conformity, CE marking and registration.', caption: 'From conformity assessment to market: the two routes and the steps after them.' }
+  ],
+  'eu-ai-act-annex-iii-high-risk-ai': [
+    { file: 'annex-iii-areas.svg', w: 640, h: 458, before: 'not-everything-in-these-areas-is-high-risk', alt: 'The eight Annex III areas: biometrics, critical infrastructure, education and training, employment and worker management, essential services and benefits, law enforcement, migration, asylum and border control, and justice and democratic processes.', caption: 'The eight Annex III areas where AI use is treated as high-risk.' }
+  ],
+  'is-my-ai-system-high-risk': [
+    { file: 'high-risk-check.svg', w: 640, h: 590, alt: 'Six questions for the EU AI Act risk check: is it an AI system, is the use prohibited, is it an Annex I product, is it in an Annex III area, does the Article 6(3) exception apply, and do transparency duties apply.', caption: 'A quick path through the EU AI Act risk check.' }
+  ],
+  'which-ai-laws-apply-to-you': [
+    { file: 'four-questions.svg', w: 640, h: 340, alt: 'Four questions that decide which AI laws apply: where your users are, what the AI does, your role as provider or deployer, and what data is involved.', caption: 'Four questions that narrow down which AI laws apply to you.' }
+  ]
+};
+
+const xesc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const hesc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\x22/g, '&quot;').replace(/'/g, '&#39;');
+const write = (rel, data) => { const f = path.join(DIST, rel); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, data); };
+
+function parse(file) {
+  const raw = fs.readFileSync(file, 'utf8').replace(/\r/g, '');
+  const m = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (!m) throw new Error('Missing front matter in ' + file);
+  const meta = {};
+  m[1].split('\n').forEach(l => { const i = l.indexOf(':'); if (i > 0) meta[l.slice(0, i).trim()] = l.slice(i + 1).trim(); });
+  return { meta, body: m[2].trim() };
+}
+const dirPosts = path.join(ROOT, 'content', 'posts');
+const posts = fs.readdirSync(dirPosts).filter(f => f.endsWith('.md')).map(f => parse(path.join(dirPosts, f)));
+posts.sort((a, b) => { const ia = ORDER.indexOf(a.meta.slug), ib = ORDER.indexOf(b.meta.slug); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib); });
+const words = t => t.split(/\s+/).filter(Boolean).length;
+const absLinks = t => t.replace(/\]\(\//g, '](' + SITE + '/');
+const urlOf = p => SITE + '/guides/' + p.meta.slug + '/';
+const mdUrl = p => SITE + '/guides/' + p.meta.slug + '.md';
+const ogOf = p => SITE + '/og/' + p.meta.slug + '.jpg';
+const latest = posts.map(p => p.meta.updated || p.meta.date).sort().pop();
+
+/* ---- static assets (images, icons) ---- */
+const pub = path.join(ROOT, 'public');
+if (fs.existsSync(pub)) fs.cpSync(pub, DIST, { recursive: true });
+
+/* ---- robots.txt: everyone welcome, named crawlers listed explicitly ---- */
+const BOTS = ['Googlebot', 'Google-Extended', 'GoogleOther', 'Google-CloudVertexBot', 'bingbot', 'GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'Claude-Web', 'anthropic-ai', 'PerplexityBot', 'Perplexity-User', 'Applebot', 'Applebot-Extended', 'meta-externalagent', 'meta-externalfetcher', 'FacebookBot', 'Amazonbot', 'Amzn-SearchBot', 'Amzn-User', 'Bytespider', 'DuckDuckBot', 'DuckAssistBot', 'CCBot', 'cohere-ai', 'MistralAI-User', 'YouBot', 'Diffbot', 'AI2Bot', 'YandexBot', 'Baiduspider', 'PetalBot', 'SeznamBot', 'Yeti', 'Timpibot', 'PanguBot'];
+write('robots.txt', ['# ActAI Compliance: search engines and AI crawlers are welcome.', '# LLM-friendly summary: ' + SITE + '/llms.txt', '# Open data: ' + SITE + '/open-data/', '', 'User-agent: *', 'Allow: /', 'Content-Signal: search=yes, ai-input=yes, ai-train=yes', '', '# Named crawlers, explicitly allowed', ...BOTS.map(b => 'User-agent: ' + b), 'Allow: /', '', 'Sitemap: ' + SITE + '/sitemap.xml', ''].join('\n'));
+
+/* ---- llms.txt, llms-full.txt and Markdown copies of every guide ---- */
+const FACTS = [
+  'The EU AI Act is Regulation (EU) 2024/1689 and entered into force on 1 August 2024.',
+  'Prohibited AI practices (Article 5) have applied since 2 February 2025.',
+  'Obligations for general-purpose AI models have applied since 2 August 2025.',
+  'The Digital Omnibus on AI, Regulation (EU) 2026/1744, entered into force on 27 July 2026.',
+  'After the Omnibus, high-risk obligations for stand-alone Annex III systems apply from 2 December 2027 (previously 2 August 2026).',
+  'High-risk obligations for AI built into regulated products (Annex I) apply from 2 August 2028.',
+  'Article 50 transparency duties applied from 2 August 2026; systems already on the market had until 2 December 2026 to add machine-readable marking to AI-generated content.',
+  'Annex III systems judged not high-risk under Article 6(3) must still be registered, with simplified information; systems that profile people are always high-risk.',
+  'The United States has no comprehensive federal AI law; state and local laws such as Texas TRAIGA (effective 1 January 2026) and New York City Local Law 144 apply.',
+  'Canada has no federal AI statute in force: the proposed AIDA lapsed in January 2025, and privacy laws (PIPEDA, Quebec Law 25) apply to AI that uses personal data.',
+  'The United Kingdom has no single AI law and relies on existing regulators and laws such as UK GDPR.'
+];
+write('llms.txt', [
+  '# ' + NAME, '',
+  '> Plain-English guides to AI regulation around the world: the EU AI Act, the UK, the US, Canada and more. Every guide shows a last-reviewed date and points to official sources. Free to read, cite and reuse with attribution (CC BY 4.0). General information, not legal advice.', '',
+  'Publisher note: ActAI Compliance is run by the team behind Attestly (https://attestly.online), a tool for EU AI Act documentation. Attestly is mentioned only where relevant and is always labelled as our product.', '',
+  '## Key facts (verified ' + VERIFIED + ')', '', ...FACTS.map(f => '- ' + f), '',
+  '## Guides', '', ...posts.map(p => '- [' + p.meta.title + '](' + mdUrl(p) + '): ' + p.meta.description), '',
+  '## Open data', '',
+  '- [Guides index (JSON)](' + SITE + '/data/guides.json): metadata for every guide',
+  '- [EU AI Act timeline (JSON)](' + SITE + '/data/eu-ai-act-timeline.json): key dates with notes',
+  '- [EU AI Act timeline (CSV)](' + SITE + '/data/eu-ai-act-timeline.csv): the same dates as a spreadsheet', '',
+  '## Optional', '',
+  '- [Full text of all guides](' + SITE + '/llms-full.txt)',
+  '- [About](' + SITE + '/about/)',
+  '- [Disclaimer](' + SITE + '/disclaimer/)',
+  '- [RSS feed](' + SITE + '/feed.xml)',
+  '- [Sitemap](' + SITE + '/sitemap.xml)', ''
+].join('\n'));
+const mdDoc = p => ['# ' + p.meta.title, '', '> ' + p.meta.description, '', '- Source: ' + urlOf(p), '- Region: ' + p.meta.region, '- Published: ' + p.meta.date, '- Last reviewed: ' + (p.meta.updated || p.meta.date), '- Publisher: ' + NAME + ' (' + SITE + ')', '- Licence: CC BY 4.0 (please attribute and link to the source URL)', '- General information, not legal advice', '', absLinks(p.body), ''].join('\n');
+posts.forEach(p => write('guides/' + p.meta.slug + '.md', mdDoc(p)));
+write('llms-full.txt', ['# ' + NAME + ': full text of all guides', '', '> Verified ' + VERIFIED + '. Licence CC BY 4.0. Not legal advice.', '', ...posts.map(p => mdDoc(p) + '\n---\n')].join('\n'));
+
+/* ---- RSS feed ---- */
+const rfc = d => new Date(d + 'T09:00:00Z').toUTCString();
+write('feed.xml', `<?xml version='1.0' encoding='UTF-8'?>\n<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'><channel><title>${xesc(NAME)}</title><link>${SITE}/</link><description>Plain-English guides to AI regulation around the world.</description><language>en</language><lastBuildDate>${rfc(latest)}</lastBuildDate><atom:link href='${SITE}/feed.xml' rel='self' type='application/rss+xml'/>${posts.map(p => `<item><title>${xesc(p.meta.title)}</title><link>${urlOf(p)}</link><guid isPermaLink='true'>${urlOf(p)}</guid><pubDate>${rfc(p.meta.date)}</pubDate><category>${xesc(p.meta.region)}</category><description>${xesc(p.meta.description)}</description></item>`).join('')}</channel></rss>\n`);
+
+/* ---- open data ---- */
+const TIMELINE = [
+  { date: '2024-08-01', event: 'EU AI Act (Regulation (EU) 2024/1689) enters into force', applies_to: 'All', note: '' },
+  { date: '2025-02-02', event: 'Prohibited AI practices (Article 5) and AI literacy provisions (Article 4) start to apply', applies_to: 'All', note: '' },
+  { date: '2025-08-02', event: 'Obligations for general-purpose AI models apply', applies_to: 'General-purpose AI model providers', note: '' },
+  { date: '2026-07-27', event: 'Digital Omnibus on AI (Regulation (EU) 2026/1744) enters into force', applies_to: 'All', note: 'Moves the high-risk dates below.' },
+  { date: '2026-08-02', event: 'Article 50 transparency obligations apply', applies_to: 'Providers and deployers of chatbots and AI-generated content', note: 'Systems already on the market before this date have until 2026-12-02 for machine-readable marking of AI-generated content (Article 50(2)).' },
+  { date: '2026-12-02', event: 'Grace period ends for Article 50(2) marking of AI-generated content (systems already on the market)', applies_to: 'Providers of generative AI systems', note: '' },
+  { date: '2027-12-02', event: 'High-risk obligations apply to stand-alone Annex III systems', applies_to: 'Providers and deployers of Annex III high-risk systems', note: 'Previously 2026-08-02.' },
+  { date: '2028-08-02', event: 'High-risk obligations apply to AI built into regulated products (Annex I)', applies_to: 'Providers of AI in Annex I regulated products', note: 'Previously 2027-08-02.' }
+];
+const nowIso = new Date().toISOString().slice(0, 10);
+const rows = TIMELINE.map(t => Object.assign({}, t, { status: t.date <= nowIso ? 'in effect' : 'upcoming' }));
+write('data/eu-ai-act-timeline.json', JSON.stringify({ title: 'EU AI Act key dates (after the 2026 AI Omnibus)', publisher: NAME, url: SITE + '/guides/eu-ai-act-explained/', license: 'CC BY 4.0', license_url: 'https://creativecommons.org/licenses/by/4.0/', last_verified: VERIFIED, disclaimer: 'General information, not legal advice. Check the official texts on EUR-Lex.', dates: rows }, null, 2));
+const q = v => '\x22' + String(v).replace(/\x22/g, '\x22\x22') + '\x22';
+write('data/eu-ai-act-timeline.csv', ['date,event,applies_to,status,note', ...rows.map(r => [r.date, r.event, r.applies_to, r.status, r.note].map(q).join(','))].join('\n') + '\n');
+write('data/guides.json', JSON.stringify({ publisher: NAME, url: SITE + '/', license: 'CC BY 4.0', license_url: 'https://creativecommons.org/licenses/by/4.0/', last_verified: VERIFIED, guides: posts.map(p => ({ slug: p.meta.slug, title: p.meta.title, region: p.meta.region, description: p.meta.description, url: urlOf(p), markdown_url: mdUrl(p), image: ogOf(p), published: p.meta.date, last_reviewed: p.meta.updated || p.meta.date, word_count: words(p.body) })) }, null, 2));
+
+/* ---- sitemap with lastmod and images ---- */
+const entries = [
+  { loc: SITE + '/', lastmod: latest, priority: '1.0', images: [SITE + '/og/default.jpg'] },
+  ...posts.map(p => ({ loc: urlOf(p), lastmod: p.meta.updated || p.meta.date, priority: '0.9', images: [ogOf(p), SITE + '/img/' + p.meta.slug + '.jpg'] })),
+  { loc: SITE + '/open-data/', lastmod: VERIFIED, priority: '0.6', images: [] },
+  { loc: SITE + '/about/', lastmod: VERIFIED, priority: '0.5', images: [] },
+  { loc: SITE + '/disclaimer/', lastmod: VERIFIED, priority: '0.3', images: [] }
+];
+write('sitemap.xml', `<?xml version='1.0' encoding='UTF-8'?>\n<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9' xmlns:image='http://www.google.com/schemas/sitemap-image/1.1'>${entries.map(e => `<url><loc>${e.loc}</loc><lastmod>${e.lastmod}</lastmod><priority>${e.priority}</priority>${e.images.map(i => `<image:image><image:loc>${i}</image:loc></image:image>`).join('')}</url>`).join('')}</urlset>\n`);
+write(KEY + '.txt', KEY);
+
+/* ---- extra CSS, served under a new hashed filename ---- */
+const EXTRA_CSS = `.cover{max-width:920px;margin:28px auto 0;padding:0 20px}
+.cover img{display:block;width:100%;height:auto;border-radius:18px;border:1px solid var(--line)}
+.diagram{margin:30px 0}
+.diagram img{display:block;width:100%;height:auto;border-radius:16px}
+.diagram figcaption{font-size:14px;color:var(--muted);margin-top:8px;line-height:1.5}
+.card .thumb{display:block;width:calc(100% + 48px);max-width:none;height:150px;object-fit:cover;margin:-24px -24px 8px;border-radius:16px 16px 0 0}
+`;
+const baseCss = fs.readFileSync(path.join(DIST, 'assets', 'style.css'), 'utf8') + '\n' + EXTRA_CSS;
+const cssHash = crypto.createHash('md5').update(baseCss).digest('hex').slice(0, 8);
+const NEW_CSS = '/assets/style.' + cssHash + '.css';
+write(NEW_CSS.slice(1), baseCss);
+const CSS_RE = /\/assets\/style\.css\?v=[0-9a-f]+/g;
+
+/* ---- HTML enrichment: rich previews, structured data, images ---- */
+const org = { '@type': 'Organization', '@id': SITE + '/#org', name: NAME, url: SITE + '/', email: EMAIL, logo: { '@type': 'ImageObject', url: SITE + '/icons/icon-512.png', width: 512, height: 512 } };
+const website = { '@type': 'WebSite', '@id': SITE + '/#website', url: SITE + '/', name: NAME, description: 'Plain-English guides to AI regulation around the world.', inLanguage: 'en', publisher: { '@id': SITE + '/#org' } };
+const ldTag = graph => `<script type='application/ld+json'>${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>`;
+const FOOT_OLD = `<a href='/sitemap.xml'>Sitemap</a>`;
+const FOOT_NEW = `<a href='/open-data/'>Open data</a><a href='/feed.xml'>RSS feed</a><a href='/llms.txt'>llms.txt</a><a href='/sitemap.xml'>Sitemap</a>`;
+const walk = dir => fs.readdirSync(dir, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]);
+
+for (const file of walk(DIST).filter(f => f.endsWith('.html'))) {
+  let html = fs.readFileSync(file, 'utf8');
+  const rel = path.relative(DIST, file).split(path.sep).join('/');
+  let route = '/' + rel.replace(/index\.html$/, '');
+  if (rel === '404.html') route = '/404';
+  const noindex = route === '/404' || route === '/offline/';
+  const gm = route.match(/^\/guides\/([a-z0-9-]+)\/$/);
+  const post = gm ? posts.find(p => p.meta.slug === gm[1]) : null;
+  const img = post ? ogOf(post) : SITE + '/og/default.jpg';
+  const alt = hesc(post ? post.meta.title : NAME + ': AI regulation, made clear');
+  const pageUrl = SITE + route;
+
+  let extra = `<meta name='robots' content='${noindex ? 'noindex,follow' : 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'}'>
+<meta name='author' content='${NAME}'>
+<meta property='og:locale' content='en'>
+<meta property='og:image' content='${img}'>
+<meta property='og:image:secure_url' content='${img}'>
+<meta property='og:image:type' content='image/jpeg'>
+<meta property='og:image:width' content='1200'>
+<meta property='og:image:height' content='630'>
+<meta property='og:image:alt' content='${alt}'>
+<meta name='twitter:image' content='${img}'>
+<meta name='twitter:image:alt' content='${alt}'>
+<link rel='icon' href='/favicon.ico' sizes='48x48'>
+<link rel='alternate' type='application/rss+xml' title='${NAME}' href='/feed.xml'>
+<link rel='sitemap' type='application/xml' href='/sitemap.xml'>
+`;
+  let graph = [org, website];
+  if (post) {
+    const m = post.meta;
+    extra += `<meta property='article:published_time' content='${m.date}'>
+<meta property='article:modified_time' content='${m.updated || m.date}'>
+<meta property='article:section' content='${hesc(m.region)}'>
+<link rel='alternate' type='text/markdown' href='/guides/${m.slug}.md'>
+`;
+    html = html.replace(/<script type='application\/ld\+json'>[\s\S]*?<\/script>/, '');
+    graph.push({ '@type': 'Article', '@id': pageUrl + '#article', headline: m.title, description: m.description, image: [{ '@type': 'ImageObject', url: img, width: 1200, height: 630 }], datePublished: m.date, dateModified: m.updated || m.date, inLanguage: 'en', isAccessibleForFree: true, articleSection: m.region, wordCount: words(post.body), author: { '@id': SITE + '/#org' }, publisher: { '@id': SITE + '/#org' }, isPartOf: { '@id': SITE + '/#website' }, mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl }, license: 'https://creativecommons.org/licenses/by/4.0/' });
+    graph.push({ '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' }, { '@type': 'ListItem', position: 2, name: 'Guides', item: SITE + '/#guides' }, { '@type': 'ListItem', position: 3, name: m.title, item: pageUrl }] });
+  } else if (route === '/') {
+    graph.push({ '@type': 'ItemList', name: 'Guides', itemListElement: posts.map((p, i) => ({ '@type': 'ListItem', position: i + 1, url: urlOf(p), name: p.meta.title })) });
+  } else if (route === '/about/') {
+    graph.push({ '@type': 'AboutPage', '@id': pageUrl + '#page', url: pageUrl, name: 'About ' + NAME, isPartOf: { '@id': SITE + '/#website' }, about: { '@id': SITE + '/#org' } });
+  }
+  html = html.replace(`<meta name='twitter:card' content='summary'>`, `<meta name='twitter:card' content='summary_large_image'>`);
+  html = html.replace('</head>', extra + (noindex ? '' : ldTag(graph)) + '\n</head>');
+  html = html.replace(FOOT_OLD, FOOT_NEW);
+  html = html.replace(/<a class='card' href='\/guides\/([a-z0-9-]+)\/'>/g, `<a class='card' href='/guides/$1/'><img class='thumb' src='/img/thumbs/$1.jpg' alt='' width='800' height='320' loading='lazy' decoding='async'>`);
+
+  if (post) {
+    const cover = `<figure class='cover'><img src='/img/${post.meta.slug}.jpg' alt='${hesc(post.meta.region)} AI regulation guide cover' width='1600' height='640' fetchpriority='high' decoding='async'></figure>`;
+    html = html.replace(`<article class='prose'>`, cover + `<article class='prose'>`);
+    for (const d of (DIAGRAMS[post.meta.slug] || [])) {
+      const fig = `<figure class='diagram'><img src='/img/diagrams/${d.file}' alt='${hesc(d.alt)}' width='${d.w}' height='${d.h}' loading='lazy' decoding='async'><figcaption>${hesc(d.caption)}</figcaption></figure>`;
+      if (d.before) {
+        const k = `<h2 id='${d.before}'>`;
+        if (html.includes(k)) html = html.replace(k, fig + k);
+      } else {
+        const start = html.indexOf(`<article class='prose'>`);
+        const at = html.indexOf('</p>', start);
+        if (start >= 0 && at >= 0) html = html.slice(0, at + 4) + fig + html.slice(at + 4);
+      }
+    }
+  }
+  html = html.replace(CSS_RE, NEW_CSS);
+  fs.writeFileSync(file, html);
+}
+
+/* ---- service worker: point at the new stylesheet ---- */
+const swPath = path.join(DIST, 'sw.js');
+if (fs.existsSync(swPath)) fs.writeFileSync(swPath, fs.readFileSync(swPath, 'utf8').replace(CSS_RE, NEW_CSS));
+
+/* ---- response headers ---- */
+fs.appendFileSync(path.join(DIST, '_headers'), ['/data/*', '  Access-Control-Allow-Origin: *', '/data/*.json', '  Content-Type: application/json; charset=utf-8', '/data/*.csv', '  Content-Type: text/csv; charset=utf-8', '/llms.txt', '  Content-Type: text/plain; charset=utf-8', '/llms-full.txt', '  Content-Type: text/plain; charset=utf-8', '/guides/*.md', '  Content-Type: text/markdown; charset=utf-8', '/feed.xml', '  Content-Type: application/rss+xml; charset=utf-8', '/sitemap.xml', '  Content-Type: application/xml; charset=utf-8', ''].join('\n'));
+console.log('Post-build done: ' + posts.length + ' guides, css ' + NEW_CSS);
