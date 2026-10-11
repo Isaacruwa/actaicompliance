@@ -21,9 +21,14 @@ The Act reaches beyond Europe. It covers providers that place AI systems on the 
 Separate rules apply to general-purpose AI models, and those obligations have applied since 2 August 2025.
 
 ## What changed in 2026
-The EU adopted the AI Omnibus (Regulation (EU) 2026/1744), which entered into force on 27 July 2026. Its biggest effect is that the date for stand-alone high-risk systems listed in Annex III moved from 2 August 2026 to **2 December 2027**. The Omnibus also added new bans, including on certain AI tools that generate realistic intimate imagery or child sexual abuse material, and it widened some relief for smaller companies.
+The EU adopted the AI Omnibus (Regulation (EU) 2026/1744), which entered into force on 27 July 2026. Its biggest effect is on the high-risk deadlines:
 
-Some transparency-related timelines were adjusted as well, so check the exact date for your use case instead of assuming everything was delayed.
+- Stand-alone high-risk systems listed in Annex III now apply from **2 December 2027** instead of 2 August 2026.
+- AI built into regulated products (Annex I) now applies from **2 August 2028**.
+- Transparency duties under Article 50, such as telling people they are talking to an AI, still applied from 2 August 2026. Systems already on the market before that date got until 2 December 2026 to add machine-readable marking to AI-generated content.
+- Companies that decide an Annex III system is not high-risk must still register it, but with simpler information.
+
+The Omnibus also added new bans, including on certain AI tools that generate realistic intimate imagery or child sexual abuse material, and it widened some relief for smaller companies.
 
 Deferred does not mean cancelled. Providers of high-risk systems still need risk management, data governance, logging, human oversight and technical documentation in place.
 
@@ -43,5 +48,11 @@ Under the original text, fines can reach 35 million euros or 7% of worldwide ann
 1. List every AI system you build or use.
 2. Work out which risk tier each one falls into.
 3. Start keeping records and documentation now. It is far cheaper than rebuilding it later.
+
+## Go deeper
+- [Is my AI system high-risk?](/guides/is-my-ai-system-high-risk/)
+- [Annex III: the high-risk use cases](/guides/eu-ai-act-annex-iii-high-risk-ai/)
+- [Annex IV technical documentation: what to include](/guides/eu-ai-act-annex-iv-technical-documentation/)
+- [Conformity assessment: how it works](/guides/eu-ai-act-conformity-assessment/)
 
 Good starting points are the official text on EUR-Lex and the European Commission pages on the AI Act.
