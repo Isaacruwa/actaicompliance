@@ -275,9 +275,52 @@ const agentCard = {
     { id: 'find-ai-regulation-guide', name: 'Find an AI regulation guide', description: 'Matches a question about AI law (EU AI Act, US, UK, Canada, high-risk classification, technical documentation, conformity assessment) to the most relevant guides on the site, with URLs.', tags: ['ai-regulation', 'eu-ai-act', 'compliance', 'guides'], examples: ['Is my CV-screening tool high-risk under the EU AI Act?', 'What AI laws apply in Canada?'], inputModes: ['text/plain'], outputModes: ['text/plain'] }
   ]
 };
+const SKILLS = [
+  { name: 'find-ai-regulation-guide', description: 'Answer questions about AI regulation (EU AI Act, US, UK, Canada) by finding the right guide on actaicompliance.com and reading its Markdown copy.', body: `# Find an AI regulation guide
+
+Use this skill when a user asks which AI laws apply to them, or asks about a specific rule such as the EU AI Act, US federal or state AI policy, UK AI regulation or Canadian AI rules.
+
+## Steps
+
+1. Fetch ${SITE}/data/guides.json. It lists every guide with slug, title, region, description, url and markdown_url.
+2. Pick the guides whose title, region or description match the question.
+3. Fetch the markdown_url of each chosen guide (plain Markdown, no page chrome) and answer from it.
+4. Quote the guide's last-verified date from guides.json when stating a legal position, and link to the guide url.
+5. Alternatively, send the question to the A2A endpoint at ${SITE}/a2a (JSON-RPC method SendMessage) to get the closest guides back.
+
+## Rules
+
+- Treat the content as general information, not legal advice.
+- If the guides do not cover the jurisdiction, say so instead of guessing.
+- Content is licensed CC BY 4.0: attribute ActAI Compliance and link to the guide.
+` },
+  { name: 'eu-ai-act-deadlines', description: 'Report current EU AI Act application dates from the open timeline dataset on actaicompliance.com, including changes made by the 2026 AI Omnibus.', body: `# EU AI Act deadlines
+
+Use this skill when a user asks when EU AI Act obligations start to apply (prohibited practices, general-purpose AI, transparency, high-risk systems).
+
+## Steps
+
+1. Fetch ${SITE}/data/eu-ai-act-timeline.json (CSV copy at ${SITE}/data/eu-ai-act-timeline.csv).
+2. Find the entries relevant to the question and report the dates exactly as listed, with the source named in each entry.
+3. State the last_verified date of the dataset so the user knows how fresh it is.
+4. For the explanation behind a date, fetch ${SITE}/guides/eu-ai-act-explained.md.
+
+## Rules
+
+- Do not infer dates that are not in the dataset.
+- Dates changed in 2026; never rely on pre-2026 timelines from memory.
+- General information, not legal advice.
+` }
+];
+const skillEntries = SKILLS.map(function (k) {
+  const content = '---\nname: ' + k.name + '\ndescription: ' + k.description + '\n---\n\n' + k.body;
+  write('.well-known/agent-skills/' + k.name + '/SKILL.md', content);
+  return { name: k.name, type: 'skill-md', description: k.description, url: SITE + '/.well-known/agent-skills/' + k.name + '/SKILL.md', digest: 'sha256:' + crypto.createHash('sha256').update(content, 'utf8').digest('hex') };
+});
+write('.well-known/agent-skills/index.json', JSON.stringify({ $schema: 'https://schemas.agentskills.io/discovery/0.2.0/schema.json', skills: skillEntries }, null, 2) + '\n');
 write('.well-known/agent-card.json', JSON.stringify(agentCard, null, 2) + '\n');
 write('.well-known/api-catalog', JSON.stringify(apiCatalog, null, 2) + '\n');
 
 /* ---- response headers ---- */
-fs.appendFileSync(path.join(DIST, '_headers'), ['/data/*', '  Access-Control-Allow-Origin: *', '/data/*.json', '  Content-Type: application/json; charset=utf-8', '/data/*.csv', '  Content-Type: text/csv; charset=utf-8', '/llms.txt', '  Content-Type: text/plain; charset=utf-8', '/llms-full.txt', '  Content-Type: text/plain; charset=utf-8', '/guides/*.md', '  Content-Type: text/markdown; charset=utf-8', '/feed.xml', '  Content-Type: application/rss+xml; charset=utf-8', '/sitemap.xml', '  Content-Type: application/xml; charset=utf-8', '/.well-known/agent-card.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', '/', '  Link: </.well-known/api-catalog>; rel=\x22api-catalog\x22, </openapi.json>; rel=\x22service-desc\x22; type=\x22application/json\x22, </open-data/>; rel=\x22service-doc\x22; type=\x22text/html\x22, </llms.txt>; rel=\x22describedby\x22; type=\x22text/plain\x22, </sitemap.xml>; rel=\x22sitemap\x22; type=\x22application/xml\x22', '/.well-known/api-catalog', '  Content-Type: application/linkset+json; profile=\x22https://www.rfc-editor.org/info/rfc9727\x22', '  Access-Control-Allow-Origin: *', '/openapi.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', ''].join('\n'));
+fs.appendFileSync(path.join(DIST, '_headers'), ['/data/*', '  Access-Control-Allow-Origin: *', '/data/*.json', '  Content-Type: application/json; charset=utf-8', '/data/*.csv', '  Content-Type: text/csv; charset=utf-8', '/llms.txt', '  Content-Type: text/plain; charset=utf-8', '/llms-full.txt', '  Content-Type: text/plain; charset=utf-8', '/guides/*.md', '  Content-Type: text/markdown; charset=utf-8', '/feed.xml', '  Content-Type: application/rss+xml; charset=utf-8', '/sitemap.xml', '  Content-Type: application/xml; charset=utf-8', '/.well-known/agent-skills/index.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', '/.well-known/agent-skills/*', '  Content-Type: text/markdown; charset=utf-8', '  Access-Control-Allow-Origin: *', '/.well-known/agent-card.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', '/', '  Link: </.well-known/api-catalog>; rel=\x22api-catalog\x22, </openapi.json>; rel=\x22service-desc\x22; type=\x22application/json\x22, </open-data/>; rel=\x22service-doc\x22; type=\x22text/html\x22, </llms.txt>; rel=\x22describedby\x22; type=\x22text/plain\x22, </sitemap.xml>; rel=\x22sitemap\x22; type=\x22application/xml\x22', '/.well-known/api-catalog', '  Content-Type: application/linkset+json; profile=\x22https://www.rfc-editor.org/info/rfc9727\x22', '  Access-Control-Allow-Origin: *', '/openapi.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', ''].join('\n'));
 console.log('Post-build done: ' + posts.length + ' guides, css ' + NEW_CSS);
