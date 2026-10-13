@@ -3,12 +3,16 @@ title: Open data
 slug: open-data
 description: Free, machine-readable datasets from ActAI Compliance, including a guides index and an EU AI Act timeline, licensed CC BY 4.0.
 ---
-We publish some of our data openly so that researchers, developers, journalists and AI assistants can use it. Everything here is free to reuse with attribution.
+We publish some of our data openly so that researchers, developers, journalists and AI assistants can use it. Everything here is free to reuse with attribution. No sign-up or API key is needed.
 
 ## Datasets
 - [Guides index (JSON)](/data/guides.json): title, region, description, dates and links for every guide
 - [EU AI Act timeline (JSON)](/data/eu-ai-act-timeline.json): the key dates after the 2026 AI Omnibus, with notes
 - [EU AI Act timeline (CSV)](/data/eu-ai-act-timeline.csv): the same dates for spreadsheets
+
+## API description and discovery
+- [OpenAPI description](/openapi.json): machine-readable description of every endpoint on this page
+- [API catalog](/.well-known/api-catalog): the discovery document defined in RFC 9727
 
 ## For AI assistants and crawlers
 - [llms.txt](/llms.txt): a short, structured summary of the site with key facts

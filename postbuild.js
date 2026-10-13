@@ -224,6 +224,44 @@ for (const file of walk(DIST).filter(f => f.endsWith('.html'))) {
 const swPath = path.join(DIST, 'sw.js');
 if (fs.existsSync(swPath)) fs.writeFileSync(swPath, fs.readFileSync(swPath, 'utf8').replace(CSS_RE, NEW_CSS));
 
+/* ---- API catalog (RFC 9727) and OpenAPI description of the open-data endpoints ---- */
+const strProp = { type: 'string' };
+const jsonResp = ref => ({ description: 'OK', content: { 'application/json': { schema: { $ref: ref } } } });
+const openapi = {
+  openapi: '3.1.0',
+  info: {
+    title: 'ActAI Compliance Open Data',
+    version: '1.0.0',
+    summary: 'Read-only static JSON, CSV and Markdown endpoints with ActAI Compliance guides and the EU AI Act timeline.',
+    description: 'No authentication and no rate-limit keys are needed. Data is licensed CC BY 4.0, please attribute ActAI Compliance and link to the page you used. General information, not legal advice.',
+    license: { name: 'CC BY 4.0', url: 'https://creativecommons.org/licenses/by/4.0/' },
+    contact: { name: NAME, email: EMAIL, url: SITE + '/about/' }
+  },
+  servers: [{ url: SITE }],
+  security: [],
+  externalDocs: { description: 'Open data documentation', url: SITE + '/open-data/' },
+  paths: {
+    '/data/guides.json': { get: { operationId: 'getGuidesIndex', summary: 'Index of all guides with metadata', responses: { '200': jsonResp('#/components/schemas/GuidesIndex') } } },
+    '/data/eu-ai-act-timeline.json': { get: { operationId: 'getEuAiActTimelineJson', summary: 'EU AI Act key dates as JSON', responses: { '200': jsonResp('#/components/schemas/Timeline') } } },
+    '/data/eu-ai-act-timeline.csv': { get: { operationId: 'getEuAiActTimelineCsv', summary: 'EU AI Act key dates as CSV', responses: { '200': { description: 'OK', content: { 'text/csv': { schema: strProp } } } } } },
+    '/guides/{slug}.md': { get: { operationId: 'getGuideMarkdown', summary: 'Markdown copy of a guide', parameters: [{ name: 'slug', in: 'path', required: true, schema: { type: 'string', enum: posts.map(p => p.meta.slug) } }], responses: { '200': { description: 'OK', content: { 'text/markdown': { schema: strProp } } }, '404': { description: 'Guide not found' } } } },
+    '/llms.txt': { get: { operationId: 'getLlmsTxt', summary: 'Short LLM-friendly site summary with key facts', responses: { '200': { description: 'OK', content: { 'text/plain': { schema: strProp } } } } } },
+    '/llms-full.txt': { get: { operationId: 'getLlmsFullTxt', summary: 'Full text of every guide in Markdown', responses: { '200': { description: 'OK', content: { 'text/plain': { schema: strProp } } } } } },
+    '/feed.xml': { get: { operationId: 'getRssFeed', summary: 'RSS feed of guides', responses: { '200': { description: 'OK', content: { 'application/rss+xml': { schema: strProp } } } } } }
+  },
+  components: {
+    schemas: {
+      Guide: { type: 'object', required: ['slug', 'title', 'region', 'url'], properties: { slug: strProp, title: strProp, region: strProp, description: strProp, url: { type: 'string', format: 'uri' }, markdown_url: { type: 'string', format: 'uri' }, image: { type: 'string', format: 'uri' }, published: { type: 'string', format: 'date' }, last_reviewed: { type: 'string', format: 'date' }, word_count: { type: 'integer' } } },
+      GuidesIndex: { type: 'object', properties: { publisher: strProp, url: { type: 'string', format: 'uri' }, license: strProp, license_url: { type: 'string', format: 'uri' }, last_verified: { type: 'string', format: 'date' }, guides: { type: 'array', items: { $ref: '#/components/schemas/Guide' } } } },
+      TimelineEntry: { type: 'object', required: ['date', 'event', 'status'], properties: { date: { type: 'string', format: 'date' }, event: strProp, applies_to: strProp, note: strProp, status: { type: 'string', enum: ['in effect', 'upcoming'] } } },
+      Timeline: { type: 'object', properties: { title: strProp, publisher: strProp, url: { type: 'string', format: 'uri' }, license: strProp, license_url: { type: 'string', format: 'uri' }, last_verified: { type: 'string', format: 'date' }, disclaimer: strProp, dates: { type: 'array', items: { $ref: '#/components/schemas/TimelineEntry' } } } }
+    }
+  }
+};
+write('openapi.json', JSON.stringify(openapi, null, 2));
+const apiCatalog = { linkset: [{ anchor: SITE + '/data/', 'service-desc': [{ href: SITE + '/openapi.json', type: 'application/json' }], 'service-doc': [{ href: SITE + '/open-data/', type: 'text/html' }] }] };
+write('.well-known/api-catalog', JSON.stringify(apiCatalog, null, 2) + '\n');
+
 /* ---- response headers ---- */
-fs.appendFileSync(path.join(DIST, '_headers'), ['/data/*', '  Access-Control-Allow-Origin: *', '/data/*.json', '  Content-Type: application/json; charset=utf-8', '/data/*.csv', '  Content-Type: text/csv; charset=utf-8', '/llms.txt', '  Content-Type: text/plain; charset=utf-8', '/llms-full.txt', '  Content-Type: text/plain; charset=utf-8', '/guides/*.md', '  Content-Type: text/markdown; charset=utf-8', '/feed.xml', '  Content-Type: application/rss+xml; charset=utf-8', '/sitemap.xml', '  Content-Type: application/xml; charset=utf-8', ''].join('\n'));
+fs.appendFileSync(path.join(DIST, '_headers'), ['/data/*', '  Access-Control-Allow-Origin: *', '/data/*.json', '  Content-Type: application/json; charset=utf-8', '/data/*.csv', '  Content-Type: text/csv; charset=utf-8', '/llms.txt', '  Content-Type: text/plain; charset=utf-8', '/llms-full.txt', '  Content-Type: text/plain; charset=utf-8', '/guides/*.md', '  Content-Type: text/markdown; charset=utf-8', '/feed.xml', '  Content-Type: application/rss+xml; charset=utf-8', '/sitemap.xml', '  Content-Type: application/xml; charset=utf-8', '/', '  Link: </.well-known/api-catalog>; rel=\x22api-catalog\x22', '/.well-known/api-catalog', '  Content-Type: application/linkset+json; profile=\x22https://www.rfc-editor.org/info/rfc9727\x22', '  Access-Control-Allow-Origin: *', '/openapi.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', ''].join('\n'));
 console.log('Post-build done: ' + posts.length + ' guides, css ' + NEW_CSS);
