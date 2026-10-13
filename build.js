@@ -272,6 +272,7 @@ ${body}
 </main>
 ${partnersSection}
 <footer class='site-footer'><div class='container'><div class='footer-grid'><div><a class='brand' href='/'>${MARK}ActAI <span>Compliance</span></a><p>Plain-English guides to AI regulation around the world.</p></div><div><h4>Guides</h4>${footerGuides}</div><div><h4>Site</h4><a href='/about/'>About</a><a href='/disclaimer/'>Disclaimer</a><a href='/sitemap.xml'>Sitemap</a></div></div><div class='footer-bottom'>&copy; ${new Date().getFullYear()} ${SITE.name}. General information only, not legal advice. Laws change, so check current rules or speak to a qualified lawyer.</div></div></footer>
+<script src='/webmcp.js' defer></script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})})}</script>
 </body>
 </html>
