@@ -13,14 +13,18 @@ function textOf(message) {
   return ((message && message.parts) || []).map((p) => (p && typeof p.text === 'string' ? p.text : '')).join(' ').trim();
 }
 
-function answer(question, guides) {
+function rank(question, guides, limit) {
   const terms = question.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((t) => t.length > 2 && !STOP.has(t));
-  const scored = guides.map((g) => {
+  return guides.map((g) => {
     const hay = (g.title + ' ' + g.description + ' ' + g.slug.replace(/-/g, ' ') + ' ' + (g.region || '')).toLowerCase();
     let score = 0;
     for (const t of terms) if (hay.includes(t)) score += g.title.toLowerCase().includes(t) ? 3 : 1;
     return { g, score };
-  }).filter((x) => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 3);
+  }).filter((x) => x.score > 0).sort((a, b) => b.score - a.score).slice(0, limit || 3);
+}
+
+function answer(question, guides) {
+  const scored = rank(question, guides, 3);
   const list = scored.length ? scored.map((x) => x.g) : guides.slice(0, 3);
   const lead = scored.length
     ? 'These guides on ActAI Compliance are the closest match to your question:'
@@ -57,10 +61,93 @@ async function handle(request, env) {
   return json({ jsonrpc: '2.0', id, result: { message: reply } });
 }
 
+
+// ---- MCP server (Streamable HTTP, stateless, JSON responses, read-only public data) ----
+const MCP_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05'];
+const TOOLS = [
+  { name: 'search_guides', title: 'Search AI regulation guides', description: 'Find guides on AI regulation (EU AI Act, US, UK, Canada) that match a question. Returns titles, regions, descriptions and URLs.', inputSchema: { type: 'object', properties: { query: { type: 'string', description: 'The question or keywords' }, limit: { type: 'integer', minimum: 1, maximum: 9, description: 'Max results (default 3)' } }, required: ['query'] }, annotations: { readOnlyHint: true, openWorldHint: false } },
+  { name: 'get_guide', title: 'Get a guide as Markdown', description: 'Return the full Markdown text of one guide by slug (slugs come from search_guides).', inputSchema: { type: 'object', properties: { slug: { type: 'string', description: 'Guide slug, e.g. eu-ai-act-explained' } }, required: ['slug'] }, annotations: { readOnlyHint: true, openWorldHint: false } },
+  { name: 'get_eu_ai_act_timeline', title: 'EU AI Act key dates', description: 'Return the EU AI Act application dates dataset (JSON) including changes from the 2026 AI Omnibus, with its last-verified date.', inputSchema: { type: 'object', properties: {} }, annotations: { readOnlyHint: true, openWorldHint: false } }
+];
+const textResult = (t, isError) => ({ content: [{ type: 'text', text: t }], isError: !!isError });
+
+async function loadGuides(request, env) {
+  const res = await env.ASSETS.fetch(new URL('/data/guides.json', request.url));
+  return (await res.json()).guides || [];
+}
+
+async function callTool(name, args, request, env) {
+  args = args || {};
+  if (name === 'search_guides') {
+    const q = String(args.query || '').trim();
+    if (!q) return textResult('query is required', true);
+    const guides = await loadGuides(request, env);
+    const limit = Math.max(1, Math.min(9, parseInt(args.limit, 10) || 3));
+    const hits = rank(q, guides, limit).map((x) => x.g);
+    if (!hits.length) return textResult('No close match. Available guides: ' + guides.map((g) => g.slug).join(', '));
+    return textResult(JSON.stringify(hits.map((g) => ({ slug: g.slug, title: g.title, region: g.region, description: g.description, url: g.url, markdown_url: g.markdown_url })), null, 2));
+  }
+  if (name === 'get_guide') {
+    const slug = String(args.slug || '');
+    const guides = await loadGuides(request, env);
+    if (!/^[a-z0-9-]+$/.test(slug) || !guides.some((g) => g.slug === slug)) return textResult('Unknown slug. Available: ' + guides.map((g) => g.slug).join(', '), true);
+    const res = await env.ASSETS.fetch(new URL('/guides/' + slug + '.md', request.url));
+    return textResult(await res.text());
+  }
+  if (name === 'get_eu_ai_act_timeline') {
+    const res = await env.ASSETS.fetch(new URL('/data/eu-ai-act-timeline.json', request.url));
+    return textResult(await res.text());
+  }
+  return null;
+}
+
+async function mcpOne(msg, request, env) {
+  if (!msg || msg.jsonrpc !== '2.0' || typeof msg.method !== 'string') return { jsonrpc: '2.0', id: msg && msg.id !== undefined ? msg.id : null, error: { code: -32600, message: 'Invalid Request' } };
+  const hasId = msg.id !== undefined && msg.id !== null;
+  const ok = (result) => ({ jsonrpc: '2.0', id: msg.id, result });
+  const err = (code, message) => ({ jsonrpc: '2.0', id: msg.id, error: { code, message } });
+  if (!hasId) return null; // notification, e.g. notifications/initialized
+  switch (msg.method) {
+    case 'initialize': {
+      const asked = msg.params && msg.params.protocolVersion;
+      return ok({
+        protocolVersion: MCP_VERSIONS.includes(asked) ? asked : MCP_VERSIONS[0],
+        capabilities: { tools: { listChanged: false } },
+        serverInfo: { name: 'actaicompliance', title: 'ActAI Compliance', version: '1.0.0' },
+        instructions: 'Read-only access to ActAI Compliance guides on worldwide AI regulation. General information, not legal advice. Content is CC BY 4.0.'
+      });
+    }
+    case 'ping': return ok({});
+    case 'tools/list': return ok({ tools: TOOLS });
+    case 'tools/call': {
+      const p = msg.params || {};
+      try {
+        const r = await callTool(p.name, p.arguments, request, env);
+        return r ? ok(r) : err(-32602, 'Unknown tool: ' + p.name);
+      } catch (e) { return ok(textResult('Tool failed', true)); }
+    }
+    default: return err(-32601, 'Method not found');
+  }
+}
+
+async function handleMcp(request, env) {
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: { ...CORS, 'Access-Control-Allow-Headers': 'Content-Type, Accept, Mcp-Session-Id, MCP-Protocol-Version' } });
+  if (request.method !== 'POST') return new Response('This MCP server supports POST only (Streamable HTTP, JSON responses).', { status: 405, headers: { Allow: 'POST, OPTIONS', ...CORS } });
+  let body;
+  try { body = await request.json(); } catch (e) { return json({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } }, 400); }
+  if (Array.isArray(body)) {
+    const out = (await Promise.all(body.map((m) => mcpOne(m, request, env)))).filter(Boolean);
+    return out.length ? json(out) : new Response(null, { status: 202, headers: CORS });
+  }
+  const out = await mcpOne(body, request, env);
+  return out ? json(out) : new Response(null, { status: 202, headers: CORS });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === '/a2a' || url.pathname === '/a2a/') return handle(request, env);
+    if (url.pathname === '/mcp' || url.pathname === '/mcp/') return handleMcp(request, env);
     return env.ASSETS.fetch(request);
   }
 };

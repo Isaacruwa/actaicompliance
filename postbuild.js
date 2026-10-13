@@ -318,9 +318,27 @@ const skillEntries = SKILLS.map(function (k) {
   return { name: k.name, type: 'skill-md', description: k.description, url: SITE + '/.well-known/agent-skills/' + k.name + '/SKILL.md', digest: 'sha256:' + crypto.createHash('sha256').update(content, 'utf8').digest('hex') };
 });
 write('.well-known/agent-skills/index.json', JSON.stringify({ $schema: 'https://schemas.agentskills.io/discovery/0.2.0/schema.json', skills: skillEntries }, null, 2) + '\n');
+const mcpCard = {
+  serverInfo: { name: 'actaicompliance', title: 'ActAI Compliance', version: '1.0.0' },
+  name: 'com.actaicompliance/guides',
+  title: 'ActAI Compliance',
+  description: 'Read-only MCP server for plain-English guides to AI regulation worldwide (EU AI Act, US, UK, Canada). General information, not legal advice.',
+  version: '1.0.0',
+  websiteUrl: SITE + '/',
+  documentationUrl: SITE + '/open-data/',
+  protocolVersion: '2025-06-18',
+  supportedProtocolVersions: ['2025-06-18', '2025-03-26', '2024-11-05'],
+  transport: { type: 'streamable-http', endpoint: SITE + '/mcp' },
+  endpoint: SITE + '/mcp',
+  remotes: [{ type: 'streamable-http', url: SITE + '/mcp' }],
+  authentication: { required: false },
+  capabilities: { tools: { listChanged: false }, resources: null, prompts: null },
+  tools: [{ name: 'search_guides', description: 'Find guides that match a question about AI regulation.' }, { name: 'get_guide', description: 'Return the full Markdown of one guide by slug.' }, { name: 'get_eu_ai_act_timeline', description: 'Return the EU AI Act key dates dataset.' }]
+};
+write('.well-known/mcp/server-card.json', JSON.stringify(mcpCard, null, 2) + '\n');
 write('.well-known/agent-card.json', JSON.stringify(agentCard, null, 2) + '\n');
 write('.well-known/api-catalog', JSON.stringify(apiCatalog, null, 2) + '\n');
 
 /* ---- response headers ---- */
-fs.appendFileSync(path.join(DIST, '_headers'), ['/data/*', '  Access-Control-Allow-Origin: *', '/data/*.json', '  Content-Type: application/json; charset=utf-8', '/data/*.csv', '  Content-Type: text/csv; charset=utf-8', '/llms.txt', '  Content-Type: text/plain; charset=utf-8', '/llms-full.txt', '  Content-Type: text/plain; charset=utf-8', '/guides/*.md', '  Content-Type: text/markdown; charset=utf-8', '/feed.xml', '  Content-Type: application/rss+xml; charset=utf-8', '/sitemap.xml', '  Content-Type: application/xml; charset=utf-8', '/.well-known/agent-skills/index.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', '/.well-known/agent-skills/find-ai-regulation-guide/SKILL.md', '  Content-Type: text/markdown; charset=utf-8', '  Access-Control-Allow-Origin: *', '/.well-known/agent-skills/eu-ai-act-deadlines/SKILL.md', '  Content-Type: text/markdown; charset=utf-8', '  Access-Control-Allow-Origin: *', '/.well-known/agent-card.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', '/', '  Link: </.well-known/api-catalog>; rel=\x22api-catalog\x22, </openapi.json>; rel=\x22service-desc\x22; type=\x22application/json\x22, </open-data/>; rel=\x22service-doc\x22; type=\x22text/html\x22, </llms.txt>; rel=\x22describedby\x22; type=\x22text/plain\x22, </sitemap.xml>; rel=\x22sitemap\x22; type=\x22application/xml\x22', '/.well-known/api-catalog', '  Content-Type: application/linkset+json; profile=\x22https://www.rfc-editor.org/info/rfc9727\x22', '  Access-Control-Allow-Origin: *', '/openapi.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', ''].join('\n'));
+fs.appendFileSync(path.join(DIST, '_headers'), ['/data/*', '  Access-Control-Allow-Origin: *', '/data/*.json', '  Content-Type: application/json; charset=utf-8', '/data/*.csv', '  Content-Type: text/csv; charset=utf-8', '/llms.txt', '  Content-Type: text/plain; charset=utf-8', '/llms-full.txt', '  Content-Type: text/plain; charset=utf-8', '/guides/*.md', '  Content-Type: text/markdown; charset=utf-8', '/feed.xml', '  Content-Type: application/rss+xml; charset=utf-8', '/sitemap.xml', '  Content-Type: application/xml; charset=utf-8', '/.well-known/agent-skills/index.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', '/.well-known/agent-skills/find-ai-regulation-guide/SKILL.md', '  Content-Type: text/markdown; charset=utf-8', '  Access-Control-Allow-Origin: *', '/.well-known/agent-skills/eu-ai-act-deadlines/SKILL.md', '  Content-Type: text/markdown; charset=utf-8', '  Access-Control-Allow-Origin: *', '/.well-known/mcp/server-card.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', '/.well-known/agent-card.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', '/', '  Link: </.well-known/api-catalog>; rel=\x22api-catalog\x22, </openapi.json>; rel=\x22service-desc\x22; type=\x22application/json\x22, </open-data/>; rel=\x22service-doc\x22; type=\x22text/html\x22, </llms.txt>; rel=\x22describedby\x22; type=\x22text/plain\x22, </sitemap.xml>; rel=\x22sitemap\x22; type=\x22application/xml\x22', '/.well-known/api-catalog', '  Content-Type: application/linkset+json; profile=\x22https://www.rfc-editor.org/info/rfc9727\x22', '  Access-Control-Allow-Origin: *', '/openapi.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', ''].join('\n'));
 console.log('Post-build done: ' + posts.length + ' guides, css ' + NEW_CSS);
