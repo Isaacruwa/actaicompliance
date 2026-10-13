@@ -14,11 +14,12 @@ function textOf(message) {
 }
 
 function rank(question, guides, limit) {
-  const terms = question.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((t) => t.length > 2 && !STOP.has(t));
+  const terms = question.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((t) => t.length > 1 && t !== 'ai' && !STOP.has(t));
+  const has = (txt, t) => (t.length > 2 ? txt.includes(t) : new RegExp('\\b' + t + '\\b').test(txt));
   return guides.map((g) => {
     const hay = (g.title + ' ' + g.description + ' ' + g.slug.replace(/-/g, ' ') + ' ' + (g.region || '')).toLowerCase();
     let score = 0;
-    for (const t of terms) if (hay.includes(t)) score += g.title.toLowerCase().includes(t) ? 3 : 1;
+    for (const t of terms) if (has(hay, t)) score += has(g.title.toLowerCase(), t) ? 3 : 1;
     return { g, score };
   }).filter((x) => x.score > 0).sort((a, b) => b.score - a.score).slice(0, limit || 3);
 }
