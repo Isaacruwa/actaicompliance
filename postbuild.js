@@ -260,8 +260,24 @@ const openapi = {
 };
 write('openapi.json', JSON.stringify(openapi, null, 2));
 const apiCatalog = { linkset: [{ anchor: SITE + '/data/', 'service-desc': [{ href: SITE + '/openapi.json', type: 'application/json' }], 'service-doc': [{ href: SITE + '/open-data/', type: 'text/html' }] }] };
+const agentCard = {
+  name: 'ActAI Compliance',
+  description: 'Independent, plain-English guides to AI regulation worldwide (EU AI Act, US, UK, Canada and more). Ask a question and get the most relevant guides, with links and Markdown copies. General information, not legal advice.',
+  supportedInterfaces: [{ url: SITE + '/a2a', protocolBinding: 'JSONRPC', protocolVersion: '1.0' }],
+  provider: { organization: 'ActAI Compliance', url: SITE + '/' },
+  version: '1.0.0',
+  documentationUrl: SITE + '/open-data/',
+  iconUrl: SITE + '/icons/icon-192.png',
+  capabilities: { streaming: false, pushNotifications: false },
+  defaultInputModes: ['text/plain'],
+  defaultOutputModes: ['text/plain'],
+  skills: [
+    { id: 'find-ai-regulation-guide', name: 'Find an AI regulation guide', description: 'Matches a question about AI law (EU AI Act, US, UK, Canada, high-risk classification, technical documentation, conformity assessment) to the most relevant guides on the site, with URLs.', tags: ['ai-regulation', 'eu-ai-act', 'compliance', 'guides'], examples: ['Is my CV-screening tool high-risk under the EU AI Act?', 'What AI laws apply in Canada?'], inputModes: ['text/plain'], outputModes: ['text/plain'] }
+  ]
+};
+write('.well-known/agent-card.json', JSON.stringify(agentCard, null, 2) + '\n');
 write('.well-known/api-catalog', JSON.stringify(apiCatalog, null, 2) + '\n');
 
 /* ---- response headers ---- */
-fs.appendFileSync(path.join(DIST, '_headers'), ['/data/*', '  Access-Control-Allow-Origin: *', '/data/*.json', '  Content-Type: application/json; charset=utf-8', '/data/*.csv', '  Content-Type: text/csv; charset=utf-8', '/llms.txt', '  Content-Type: text/plain; charset=utf-8', '/llms-full.txt', '  Content-Type: text/plain; charset=utf-8', '/guides/*.md', '  Content-Type: text/markdown; charset=utf-8', '/feed.xml', '  Content-Type: application/rss+xml; charset=utf-8', '/sitemap.xml', '  Content-Type: application/xml; charset=utf-8', '/', '  Link: </.well-known/api-catalog>; rel=\x22api-catalog\x22, </openapi.json>; rel=\x22service-desc\x22; type=\x22application/json\x22, </open-data/>; rel=\x22service-doc\x22; type=\x22text/html\x22, </llms.txt>; rel=\x22describedby\x22; type=\x22text/plain\x22, </sitemap.xml>; rel=\x22sitemap\x22; type=\x22application/xml\x22', '/.well-known/api-catalog', '  Content-Type: application/linkset+json; profile=\x22https://www.rfc-editor.org/info/rfc9727\x22', '  Access-Control-Allow-Origin: *', '/openapi.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', ''].join('\n'));
+fs.appendFileSync(path.join(DIST, '_headers'), ['/data/*', '  Access-Control-Allow-Origin: *', '/data/*.json', '  Content-Type: application/json; charset=utf-8', '/data/*.csv', '  Content-Type: text/csv; charset=utf-8', '/llms.txt', '  Content-Type: text/plain; charset=utf-8', '/llms-full.txt', '  Content-Type: text/plain; charset=utf-8', '/guides/*.md', '  Content-Type: text/markdown; charset=utf-8', '/feed.xml', '  Content-Type: application/rss+xml; charset=utf-8', '/sitemap.xml', '  Content-Type: application/xml; charset=utf-8', '/.well-known/agent-card.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', '/', '  Link: </.well-known/api-catalog>; rel=\x22api-catalog\x22, </openapi.json>; rel=\x22service-desc\x22; type=\x22application/json\x22, </open-data/>; rel=\x22service-doc\x22; type=\x22text/html\x22, </llms.txt>; rel=\x22describedby\x22; type=\x22text/plain\x22, </sitemap.xml>; rel=\x22sitemap\x22; type=\x22application/xml\x22', '/.well-known/api-catalog', '  Content-Type: application/linkset+json; profile=\x22https://www.rfc-editor.org/info/rfc9727\x22', '  Access-Control-Allow-Origin: *', '/openapi.json', '  Content-Type: application/json; charset=utf-8', '  Access-Control-Allow-Origin: *', ''].join('\n'));
 console.log('Post-build done: ' + posts.length + ' guides, css ' + NEW_CSS);
