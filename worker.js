@@ -144,11 +144,50 @@ async function handleMcp(request, env) {
   return out ? json(out) : new Response(null, { status: 202, headers: CORS });
 }
 
+
+const HTML_ROUTES = /^\/(?:|guides\/(?:[a-z0-9-]+\/)?|about\/|disclaimer\/|open-data\/)$/;
+// ---- Markdown for agents: Accept: text/markdown returns a Markdown version of an HTML page ----
+function wantsMarkdown(accept) {
+  const q = {};
+  String(accept || '').split(',').forEach((part) => {
+    const bits = part.trim().split(';');
+    const type = bits[0].trim().toLowerCase();
+    let v = 1;
+    bits.slice(1).forEach((b) => { const m = b.trim().match(/^q=([0-9.]+)$/i); if (m) v = parseFloat(m[1]); });
+    if (type) q[type] = v;
+  });
+  const md = q['text/markdown'] || 0;
+  if (md <= 0) return false;
+  const html = q['text/html'] === undefined ? 0 : q['text/html'];
+  return md >= html;
+}
+function markdownPath(pathname) {
+  if (pathname === '/') return '/md/index.md';
+  const p = pathname.replace(/\/+$/, '');
+  return '/md' + p + (p === '/guides' ? '/index' : '') + '.md';
+}
+async function serveHtmlOrMarkdown(request, env, url) {
+  if ((request.method === 'GET' || request.method === 'HEAD') && wantsMarkdown(request.headers.get('Accept'))) {
+    const res = await env.ASSETS.fetch(new URL(markdownPath(url.pathname), request.url));
+    if (res.ok) {
+      const body = await res.text();
+      return new Response(request.method === 'HEAD' ? null : body, { status: 200, headers: {
+        'Content-Type': 'text/markdown; charset=utf-8', 'Vary': 'Accept', 'x-markdown-tokens': String(Math.ceil(body.length / 4)),
+        'Cache-Control': 'public, max-age=300', 'Access-Control-Allow-Origin': '*', 'X-Content-Type-Options': 'nosniff' } });
+    }
+  }
+  const res = await env.ASSETS.fetch(request);
+  const out = new Response(res.body, res);
+  out.headers.append('Vary', 'Accept');
+  return out;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === '/a2a' || url.pathname === '/a2a/') return handle(request, env);
     if (url.pathname === '/mcp' || url.pathname === '/mcp/') return handleMcp(request, env);
+    if (HTML_ROUTES.test(url.pathname)) return serveHtmlOrMarkdown(request, env, url);
     return env.ASSETS.fetch(request);
   }
 };

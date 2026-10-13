@@ -275,6 +275,14 @@ const agentCard = {
     { id: 'find-ai-regulation-guide', name: 'Find an AI regulation guide', description: 'Matches a question about AI law (EU AI Act, US, UK, Canada, high-risk classification, technical documentation, conformity assessment) to the most relevant guides on the site, with URLs.', tags: ['ai-regulation', 'eu-ai-act', 'compliance', 'guides'], examples: ['Is my CV-screening tool high-risk under the EU AI Act?', 'What AI laws apply in Canada?'], inputModes: ['text/plain'], outputModes: ['text/plain'] }
   ]
 };
+/* ---- Markdown representations for Accept: text/markdown (served by worker.js) ---- */
+write('md/index.md', ['# ' + NAME, '', '> Plain-English guides to AI regulation around the world: the EU AI Act, the UK, the US, Canada and more. Not legal advice.', '', '- Source: ' + SITE + '/', '- Verified: ' + VERIFIED, '', '## Guides', '', ...posts.map(p => '- [' + p.meta.title + '](' + urlOf(p) + ') (' + p.meta.region + '): ' + p.meta.description), '', '## Key facts (verified ' + VERIFIED + ')', '', ...FACTS.map(f => '- ' + f), '', '## For agents and developers', '', '- [llms.txt](' + SITE + '/llms.txt)', '- [Open data](' + SITE + '/open-data/)', '- [API catalog](' + SITE + '/.well-known/api-catalog)', '- [MCP server](' + SITE + '/mcp)', '- [A2A agent card](' + SITE + '/.well-known/agent-card.json)', ''].join('\n'));
+write('md/guides/index.md', ['# Guides', '', '> All AI regulation guides on ' + NAME + '.', '', '- Source: ' + SITE + '/guides/', '', ...posts.map(p => '- [' + p.meta.title + '](' + urlOf(p) + ') (' + p.meta.region + '): ' + p.meta.description), ''].join('\n'));
+posts.forEach(p => write('md/guides/' + p.meta.slug + '.md', mdDoc(p)));
+fs.readdirSync(path.join(ROOT, 'content', 'pages')).filter(f => f.endsWith('.md')).forEach(f => {
+  const pg = parse(path.join(ROOT, 'content', 'pages', f));
+  write('md/' + pg.meta.slug + '.md', ['# ' + pg.meta.title, '', '> ' + pg.meta.description, '', '- Source: ' + SITE + '/' + pg.meta.slug + '/', '', absLinks(pg.body), ''].join('\n'));
+});
 const SKILLS = [
   { name: 'find-ai-regulation-guide', description: 'Answer questions about AI regulation (EU AI Act, US, UK, Canada) by finding the right guide on actaicompliance.com and reading its Markdown copy.', body: `# Find an AI regulation guide
 
