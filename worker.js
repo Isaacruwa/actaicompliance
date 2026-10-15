@@ -182,9 +182,20 @@ async function serveHtmlOrMarkdown(request, env, url) {
   return out;
 }
 
+// One canonical address: https://actaicompliance.com (no www, always https).
+function canonicalRedirect(request, url) {
+  const wrongHost = url.hostname === 'www.actaicompliance.com';
+  const wrongScheme = url.protocol === 'http:' && (url.hostname === 'actaicompliance.com' || wrongHost);
+  if (!wrongHost && !wrongScheme) return null;
+  const target = 'https://actaicompliance.com' + url.pathname + url.search;
+  return Response.redirect(target, request.method === 'GET' || request.method === 'HEAD' ? 301 : 308);
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const redirect = canonicalRedirect(request, url);
+    if (redirect) return redirect;
     if (url.pathname === '/a2a' || url.pathname === '/a2a/') return handle(request, env);
     if (url.pathname === '/mcp' || url.pathname === '/mcp/') return handleMcp(request, env);
     if (HTML_ROUTES.test(url.pathname)) return serveHtmlOrMarkdown(request, env, url);
