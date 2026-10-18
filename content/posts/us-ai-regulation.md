@@ -19,7 +19,7 @@ The NIST AI Risk Management Framework is voluntary, but it is widely used as a p
 - **Texas:** the Texas Responsible AI Governance Act took effect on 1 January 2026.
 - **New York City:** Local Law 144 requires bias audits and notices for automated employment decision tools.
 
-Other states have passed laws on deepfakes, chatbots, healthcare AI and government use, and the list keeps growing.
+For dates, who is covered and what to do first, see our [state-by-state guide](/guides/us-state-ai-laws/). Other states have passed laws on deepfakes, chatbots, healthcare AI and government use, and the list keeps growing.
 
 ## Where scrutiny is highest
 Across states and agencies, the areas that draw the most attention are consequential decisions about people: employment, lending, housing, insurance, healthcare and education. If your AI touches these, expect more rules and more questions.
