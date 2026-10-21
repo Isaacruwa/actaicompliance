@@ -1,0 +1,66 @@
+name: IndexNow ping
+
+# After each push that changes the site, tell IndexNow (Bing, Yandex and others) which URLs are new or changed.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/**'
+      - 'public/**'
+      - 'build.js'
+      - 'postbuild.js'
+      - 'worker.js'
+      - '.github/workflows/indexnow.yml'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Work out which URLs changed
+        id: urls
+        run: |
+          SITE=https://actaicompliance.com
+          BEFORE="${{ github.event.before }}"
+          if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BEFORE" 2>/dev/null; then
+            FILES=$(git diff --name-only "$BEFORE" "${{ github.sha }}")
+          else
+            FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || true)
+          fi
+          echo "Changed files:"; echo "$FILES"
+          : > urls.txt
+          echo "$SITE/" >> urls.txt
+          for f in $FILES; do
+            case "$f" in
+              content/posts/*.md)
+                [ -f "$f" ] && s=$(basename "$f" .md) && echo "$SITE/guides/$s/" >> urls.txt ;;
+              content/pages/*.md)
+                [ -f "$f" ] && s=$(basename "$f" .md) && echo "$SITE/$s/" >> urls.txt ;;
+            esac
+          done
+          sort -u urls.txt -o urls.txt
+          echo "URLs to submit:"; cat urls.txt
+
+      - name: Wait for the Cloudflare deploy
+        run: |
+          KEY=69a9a34a62654421992f41db833ac23a
+          sleep 90
+          for i in $(seq 1 12); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://actaicompliance.com/$KEY.txt?cb=$RANDOM")
+            [ "$code" = "200" ] && break
+            sleep 20
+          done
+          echo "Key file status: $code"
+
+      - name: Submit to IndexNow
+        run: |
+          KEY=69a9a34a62654421992f41db833ac23a
+          LIST=$(python3 -c "import json;print(json.dumps([l.strip() for l in open('urls.txt') if l.strip()]))")
+          BODY="{\"host\":\"actaicompliance.com\",\"key\":\"$KEY\",\"keyLocation\":\"https://actaicompliance.com/$KEY.txt\",\"urlList\":$LIST}"
+          code=$(curl -s -o resp.txt -w '%{http_code}' -X POST https://api.indexnow.org/indexnow -H 'Content-Type: application/json; charset=utf-8' -d "$BODY")
+          echo "IndexNow response: $code"; cat resp.txt
+          if [ "$code" != "200" ] && [ "$code" != "202" ]; then exit 1; fi
