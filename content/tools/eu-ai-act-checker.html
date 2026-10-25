@@ -1,0 +1,135 @@
+<style>
+.chk{max-width:760px;margin:0 auto;padding:32px 20px 24px}
+.chk .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:0 10px 30px -18px rgba(11,18,32,.35)}
+.chk .prog{height:6px;background:var(--soft);border-radius:99px;overflow:hidden;margin-bottom:18px}
+.chk .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4f46e5,#06b6d4);transition:width .25s}
+.chk .step{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.chk h2{margin:6px 0 6px;font-size:24px;line-height:1.3;color:var(--ink)}
+.chk .help{color:var(--muted);margin:0 0 16px;font-size:16px}
+.chk label.opt{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--line);border-radius:12px;margin:0 0 10px;cursor:pointer;line-height:1.5}
+.chk label.opt:hover{border-color:var(--brand)}
+.chk label.opt:has(input:checked){border-color:var(--brand);background:#f3f2ff}
+.chk label.opt input{margin-top:5px;flex:none;accent-color:#4f46e5}
+.chk label.opt small{display:block;color:var(--muted);font-size:14px}
+.chk .row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.chk button{font:inherit;font-weight:700;border-radius:12px;padding:12px 20px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.chk button.go{background:linear-gradient(135deg,#4f46e5,#06b6d4);color:#fff;border:0}
+.chk button:disabled{opacity:.45;cursor:not-allowed}
+.chk .badge{display:inline-block;font-size:13px;font-weight:800;padding:4px 10px;border-radius:99px;background:#eef2ff;color:#3730a3}
+.chk .badge.red{background:#fee2e2;color:#991b1b}.chk .badge.green{background:#dcfce7;color:#166534}.chk .badge.amber{background:#fef3c7;color:#92400e}
+.chk .res h3{margin:22px 0 6px;font-size:18px;color:var(--ink)}
+.chk .res ul{margin:0 0 6px;padding-left:20px}.chk .res li{margin:0 0 6px}
+.chk .disc{margin-top:22px;padding:14px 16px;border-radius:12px;background:var(--soft);font-size:15px;color:var(--muted)}
+.chk-static{max-width:720px;margin:0 auto;padding:8px 20px 8px;font-size:17px}
+</style>
+<div class='chk' id='chk'>
+<noscript><div class='card'><p>This tool needs JavaScript. Without it, read the <a href='/guides/eu-ai-act-explained/'>EU AI Act guide</a> or the official text on <a href='https://eur-lex.europa.eu/eli/reg/2024/1689/oj' rel='noopener'>EUR-Lex</a>.</p></div></noscript>
+<div class='card' id='card' aria-live='polite'></div>
+</div>
+<div class='chk-static'>
+<h2>What this tool covers</h2>
+<p>Seven short questions about where you are based, where your AI is used, your role, what the AI does, how it is offered and how much a human is involved. The answers map to one of the main outcomes under Regulation (EU) 2024/1689: outside the Act, prohibited, high-risk provider, high-risk product, high-risk deployer, importer or distributor, exempt from the high-risk rules, transparency duties, general-purpose AI model provider, or minimal risk.</p>
+<p>Nothing you select is sent anywhere. The answers stay in your browser. The result is a starting point for your own reading of the law, not a ruling. See the <a href='/guides/eu-ai-act-explained/'>EU AI Act guide</a> for the full background and <a href='/disclaimer/'>the disclaimer</a>.</p>
+</div>
+<script>
+(function(){
+var SRC={
+ act:['Regulation (EU) 2024/1689 (the AI Act), EUR-Lex','https://eur-lex.europa.eu/eli/reg/2024/1689/oj'],
+ omni:['Regulation (EU) 2026/1744 (Digital Omnibus on AI), EUR-Lex','https://eur-lex.europa.eu/eli/reg/2026/1744/oj'],
+ pol:['European Commission: AI Act policy page','https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai'],
+ desk:['AI Act Service Desk (European Commission)','https://ai-act-service-desk.ec.europa.eu/en'],
+ ban:['Commission guidelines on prohibited AI practices','https://digital-strategy.ec.europa.eu/en/library/commission-publishes-guidelines-prohibited-artificial-intelligence-ai-practices-defined-ai-act']
+};
+var Q={
+ base:{t:'Where is your organisation based?',h:'Where you are legally established or have your main place of business.',o:[['eu','In the EU or EEA','Any of the 27 member states, plus Norway, Iceland and Liechtenstein.'],['non','Outside the EU'],['unsure','Not sure']]},
+ use:{t:'Where is the AI system, or its output, used?',h:'The Act looks at where the system is placed on the market or used, or where its output is used, not only where you sit.',o:[['eu','In the EU','Customers, employees or people affected are in the EU.'],['both','In the EU and elsewhere'],['out','Only outside the EU']]},
+ role:{t:'What is your role?',h:'Pick the closest one. One company can have several roles for different systems.',o:[['provider','I build it, or have it built, and offer it under my own name','Provider. This includes building a system for your own use.'],['deployer','I use a system built by someone else in my business','Deployer.'],['importer','I bring a non-EU system into the EU, or resell or distribute it','Importer or distributor.'],['modifier','I put my brand on someone else\'s system, or change its purpose','You may be treated as the provider.'],['excl','Personal, non-professional use, pure scientific research, or military and national security only','These uses are outside the Act.']]},
+ what:{t:'What does the AI do?',h:'Tick everything that applies. The most serious category decides the result.',multi:1,o:[
+  ['ban','Manipulates people, scores people socially, scrapes faces from the internet, guesses emotions at work or school, infers sensitive traits from biometrics, or predicts crime from profiling alone','Practices the Act bans outright (Article 5).'],
+  ['a1','Is a safety part of a regulated product','For example medical devices, machinery, toys, lifts, radio equipment or vehicles.'],
+  ['a3','Affects people in areas such as hiring and worker management, education, credit or insurance, public benefits, biometric identification, law enforcement, migration, justice, or critical infrastructure','The Annex III list of high-risk areas.'],
+  ['gpai','Is a general-purpose AI model that can be used for many tasks','For example a large language or image model.'],
+  ['tr','Talks to people, or generates or edits text, images, audio or video','Chatbots, synthetic media, deepfakes.'],
+  ['none','None of the above','For example a spam filter, a recommendation engine for films, stock forecasting for your own use, or a game.']]},
+ how:{t:'How is the system offered?',h:'This decides whether the law calls it "placing on the market" or "putting into service".',o:[['prod','As a product people buy, download or install'],['svc','As a service, such as an app, SaaS or API'],['int','As an internal tool used only inside my organisation']]},
+ human:{t:'How much do people rely on the AI output?',h:'Applies because your system touches an Annex III area. Some systems in those areas are not high-risk if they play a very small part.',o:[['main','The AI decides, or its output is the main basis for a decision'],['review','A person reviews it and can really change the outcome'],['narrow','It only does a narrow or preparatory task','For example sorting documents, checking formatting, or improving work a person already did.']]},
+ prof:{t:'Does it profile people?',h:'Profiling means automatically assessing aspects of a person such as performance, reliability, behaviour, interests or health.',o:[['yes','Yes'],['no','No']]}
+};
+var A={},cur='base',hist=[],card=document.getElementById('card');
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function has(k){return (A.what||[]).indexOf(k)>-1}
+function next(k){
+ if(k==='base')return 'use';
+ if(k==='use'){ if(A.base==='non'&&A.use==='out')return 'END'; return 'role'}
+ if(k==='role'){ if(A.role==='excl')return 'END'; return 'what'}
+ if(k==='what')return 'how';
+ if(k==='how'){ if(has('ban')||has('a1'))return 'END'; if(has('a3')&&(A.role==='provider'||A.role==='modifier'))return 'human'; return 'END'}
+ if(k==='human')return A.human==='narrow'?'prof':'END';
+ return 'END';
+}
+function total(){return has('a3')&&(A.role==='provider'||A.role==='modifier')?7:6}
+function render(){
+ if(cur==='END')return result();
+ var q=Q[cur],n=hist.length+1,t=total();
+ var h='<div class="prog"><i style="width:'+Math.min(100,(n-1)/t*100)+'%"></i></div><div class="step">Question '+n+' of up to '+t+'</div><h2>'+esc(q.t)+'</h2><p class="help">'+esc(q.h)+'</p><form>';
+ q.o.forEach(function(o,i){h+='<label class="opt"><input type="'+(q.multi?'checkbox':'radio')+'" name="q" value="'+o[0]+'"><span>'+esc(o[1])+(o[2]?'<small>'+esc(o[2])+'</small>':'')+'</span></label>'});
+ h+='</form><div class="row">'+(hist.length?'<button type="button" id="bk">Back</button>':'')+'<button type="button" class="go" id="nx" disabled>Next</button></div>';
+ card.innerHTML=h;
+ var inputs=card.querySelectorAll('input'),nx=document.getElementById('nx');
+ var prev=A[cur];
+ inputs.forEach(function(i){ if(prev&&(q.multi?prev.indexOf(i.value)>-1:prev===i.value))i.checked=true; i.addEventListener('change',function(){
+  if(q.multi&&i.value==='none'&&i.checked)inputs.forEach(function(x){if(x!==i)x.checked=false});
+  if(q.multi&&i.value!=='none'&&i.checked)inputs.forEach(function(x){if(x.value==='none')x.checked=false});
+  upd()})});
+ function upd(){var any=false;inputs.forEach(function(i){if(i.checked)any=true});nx.disabled=!any}
+ upd();
+ nx.onclick=function(){
+  var v=[];inputs.forEach(function(i){if(i.checked)v.push(i.value)});
+  A[cur]=q.multi?v:v[0];
+  if(cur==='what'&&A.what.indexOf('none')>-1&&A.what.length>1)A.what=['none'];
+  hist.push(cur);cur=next(cur);render();window.scrollTo({top:card.offsetTop-80,behavior:'smooth'});
+ };
+ var bk=document.getElementById('bk');if(bk)bk.onclick=function(){cur=hist.pop();render()};
+}
+function li(a){return '<ul>'+a.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'}
+function src(keys){return '<ul>'+keys.map(function(k){return '<li><a href="'+SRC[k][1]+'" rel="noopener" target="_blank">'+esc(SRC[k][0])+'</a></li>'}).join('')+'</ul>'}
+function fines(k){return k==='ban'?'Up to €35 million or 7% of worldwide annual turnover, whichever is higher.':'Up to €15 million or 3% of worldwide annual turnover for most other breaches (lower caps apply to small businesses).'}
+function outcome(){
+ var r=A.role,how=A.how;
+ if(A.role==='excl')return{b:'Likely outside the Act',c:'green',cls:'Outside scope (Article 2)',ob:['The Act does not apply to purely personal, non-professional use, to AI developed and used only for scientific research, or to AI used only for military, defence or national security purposes.','If the system is later offered commercially or used for another purpose, the answer can change. Test it again then.'],d:['None triggered by this answer.'],s:['act','pol']};
+ if(A.base==='non'&&A.use==='out')return{b:'Likely outside the Act',c:'green',cls:'Probably not in scope',ob:['The Act reaches providers and deployers outside the EU only where the system is placed on the EU market or its output is used in the EU. Your answers say neither applies.','Watch for change: if EU customers start using it, or its output is used in the EU, the Act can apply to you even from outside the EU. Non-EU providers of high-risk systems must also appoint an authorised representative in the EU.'],d:['No date applies today. Check again if your market changes.'],s:['act','desk']};
+ if(has('ban'))return{b:'Prohibited practice',c:'red',cls:'Possible ban under Article 5',ob:['Your description matches a practice the Act prohibits. Prohibited means you may not place it on the EU market, put it into service or use it. There is no compliance route that makes it legal.','Several bans have narrow exceptions, for example some law-enforcement uses of biometric identification with prior authorisation. Whether you fall in or out depends on exact facts. Read the Commission guidelines with the examples before drawing any conclusion.','Whether or not you are the provider, a deployer using a banned system is also caught.'],d:['Bans have applied since 2 February 2025.','Fines: '+fines('ban')],s:['act','ban','desk']};
+ var sub=[];
+ if(has('tr'))sub.push('Transparency duties (Article 50) may also apply: tell people when they are talking to an AI, label deepfakes and AI-generated content, and make synthetic output detectable by machines. Deployers of emotion recognition or biometric categorisation must inform the people affected.');
+ if(has('gpai')&&(r==='provider'||r==='modifier'))sub.push('Because you offer a general-purpose model, the separate rules for those models apply as well. See the general-purpose AI outcome below.');
+ if(has('a1')){
+  var o=[];
+  if(r==='provider'||r==='modifier')o=['Your system is likely high-risk because it is a safety component of a product covered by EU product legislation (Annex I), or is itself such a product, and that product needs a third-party conformity assessment.','As the provider, you carry the heaviest duties: a risk management system, data governance, technical documentation, record-keeping, human oversight, accuracy and cybersecurity, a conformity assessment, CE marking and registration before the product is sold.','The AI obligations run alongside the product rules (for example the Medical Devices Regulation or the Machinery Regulation), and the same notified body is often involved.'];
+  else if(r==='importer')o=['As importer or distributor of a high-risk product you must check, before it is sold in the EU, that the provider has done the conformity assessment, the CE marking and documentation are present, and an EU representative is named where needed.','You must not sell a product you believe does not comply, and you must tell the provider and the authority if it presents a risk.','Keep the paperwork you received and store and transport the product so compliance is not harmed.'];
+  else o=['Where you use a high-risk system that is part of a regulated product, you must follow the provider\'s instructions for use, assign competent human oversight, keep the logs you control and report serious incidents.','Check whether you are also a provider: changing the purpose or modifying the system substantially makes you one.'];
+  return{b:'High-risk (product route)',c:'amber',cls:r==='deployer'?'High-risk deployer':r==='importer'?'Importer / distributor of a high-risk product':'Provider of a high-risk product (Annex I)',ob:o.concat(sub),d:['Obligations for Annex I product-linked systems start on 2 August 2028 after the Digital Omnibus.','Fines for breaching high-risk obligations: '+fines('x')],s:['act','omni','pol','desk']};
+ }
+ if(has('a3')){
+  var ex=(A.human==='narrow'&&A.prof==='no');
+  if(ex&&(r==='provider'||r==='modifier'))return{b:'Possibly exempt from high-risk',c:'amber',cls:'Provider relying on the Article 6(3) exception',ob:['A system in an Annex III area is not high-risk if it does not pose a significant risk to people\'s health, safety or rights, for example because it only does a narrow procedural task, improves a previous human activity, detects patterns without replacing human judgement, or does preparatory work. It must not profile people.','You decide this yourself, so the risk of getting it wrong sits with you. You must write down your assessment, and you must still register the system in the EU database. Authorities can challenge your conclusion.','If your system is not exempt, the high-risk provider obligations apply. Read Article 6 and the Commission guidance on classification.'].concat(sub),d:['High-risk Annex III rules start on 2 December 2027 after the Digital Omnibus. The exception assessment and registration should be done before the system is placed on the market.','Fines: '+fines('x')],s:['act','omni','desk']};
+  if(r==='provider'||r==='modifier')return{b:'High-risk',c:'amber',cls:r==='modifier'?'Treated as the provider of a high-risk system (Article 25)':'Provider of a high-risk system (Annex III)',ob:(r==='modifier'?['Putting your name or trademark on a high-risk system, changing its intended purpose, or making a substantial modification makes you the provider, with the original provider\'s duties. The first provider must then cooperate with you.']:[]).concat(['Your system falls in a listed high-risk area and it materially influences decisions, so it is likely high-risk.','As provider you must run a risk management system, use suitable and representative data, keep technical documentation and automatic logs, design for human oversight, ensure accuracy, robustness and cybersecurity, complete a conformity assessment, affix CE marking and register the system in the EU database before it is placed on the market.','You must also set up a quality management system, give deployers clear instructions for use, report serious incidents and take corrective action. Providers outside the EU need an authorised representative in the EU.'],sub),d:['High-risk Annex III obligations apply from 2 December 2027 after the Digital Omnibus.','Fines for breaching these obligations: '+fines('x')],s:['act','omni','pol','desk']};
+  if(r==='importer')return{b:'High-risk (importer or distributor)',c:'amber',cls:'Importer or distributor of a high-risk system',ob:['Before a high-risk system is made available in the EU you must check that the provider completed the conformity assessment, the documentation and CE marking exist, instructions are included, and the provider or its EU representative is named.','You must not sell a system you have reason to think is non-compliant, you must tell the provider and the authority if it presents a risk, and you must keep copies of key paperwork for ten years.'].concat(sub),d:['High-risk Annex III obligations apply from 2 December 2027 after the Digital Omnibus.'],s:['act','omni','desk']};
+  return{b:'High-risk (deployer)',c:'amber',cls:'Deployer of a high-risk system',ob:['You use a system in a listed high-risk area, so you are likely a high-risk deployer. Your duties are lighter than the provider\'s but real.','Use the system as the provider\'s instructions say, give oversight to trained and authorised staff, make sure input data you control is relevant, monitor operation, keep the logs you control for at least six months and report serious incidents or risks to the provider and the authority.','Tell workers and their representatives before using such a system at work, and tell people affected when a high-risk system is used to make or assist decisions about them. Public bodies and some others must carry out a fundamental rights impact assessment first.'].concat(sub),d:['High-risk Annex III obligations apply from 2 December 2027 after the Digital Omnibus.','Fines: '+fines('x')],s:['act','omni','pol','desk']};
+ }
+ if(has('gpai')&&(r==='provider'||r==='modifier'))return{b:'General-purpose AI provider',c:'amber',cls:'Provider of a general-purpose AI model',ob:['If you place a general-purpose AI model on the EU market you must keep technical documentation, give downstream providers the information they need, set a copyright-compliance policy and publish a summary of the training content.','Models with systemic risk (very large training compute) have extra duties: model evaluation, adversarial testing, incident reporting and cybersecurity. The Commission publishes a code of practice and guidance. Open-source models get some relief but not from copyright or systemic-risk duties.','If you build a product on top of someone else\'s model, you are normally a downstream provider or deployer, not a model provider. Check the Commission guidelines.'].concat(sub),d:['General-purpose model obligations have applied since 2 August 2025.','Models already on the market before that date have until 2 August 2027.','Commission enforcement powers over these models, including fines, started on 2 August 2026.'],s:['act','pol','desk']};
+ if(has('tr'))return{b:'Transparency duties',c:'amber',cls:r==='deployer'?'Deployer with transparency duties (Article 50)':r==='importer'?'Importer or distributor (limited duties)':'Provider with transparency duties (Article 50)',ob:r==='deployer'?['If you use AI that creates deepfakes or publishes AI-generated text on matters of public interest, you must disclose that it is AI-generated or manipulated. Where you use emotion recognition or biometric categorisation, you must inform the people exposed to it.','Using a chatbot to talk to customers does not by itself put the duty on you: the provider must design the system so people are told they are dealing with AI, unless that is obvious.']:r==='importer'?['You have no stand-alone duties for transparency-only systems beyond not selling something you know does not meet the Act. Make sure the provider has done its part.']:['Design the system so people know they are interacting with AI unless that is obvious, mark AI-generated or edited audio, image, video and text in a machine-readable way, and make it detectable as artificial.'],d:['Article 50 transparency duties apply from 2 August 2026.','Systems already on the market before then have until 2 December 2026 for machine-readable marking.'],s:['act','omni','desk']};
+ return{b:'Minimal risk',c:'green',cls:'Low-risk AI (no specific obligations)',ob:['Your system is not banned, not high-risk, and has no special transparency duty on your answers. The Act does not impose specific obligations for it.','You may follow voluntary codes of conduct. Other laws, such as data-protection, consumer, employment or sector rules, still apply.','Reassess if you change what the system is used for. A new purpose can move it into a higher category.'],d:['No specific AI Act date applies to you on these answers.'],s:['act','pol','desk']};
+}
+function result(){
+ var o=outcome();
+ var h='<div class="prog"><i style="width:100%"></i></div><div class="res"><span class="badge '+o.c+'">'+esc(o.b)+'</span><h2 style="margin-top:10px">'+esc(o.cls)+'</h2>'+
+ '<h3>What it means for you</h3>'+li(o.ob.map(esc))+'<h3>Key dates and penalties</h3>'+li(o.d.map(esc))+'<h3>Read the official sources</h3>'+src(o.s)+
+ '<div class="disc"><strong>Educational only, not legal advice.</strong> This tool is a simplified reading of the law as of October 2026. Real cases depend on facts the questions cannot capture, and rules and guidance keep changing. Confirm against the sources above or ask a qualified lawyer before you act.</div>'+
+ '<div class="row"><button type="button" id="rs">Start again</button><button type="button" id="bk">Back</button></div></div>';
+ card.innerHTML=h;
+ document.getElementById('rs').onclick=function(){A={};hist=[];cur='base';render()};
+ document.getElementById('bk').onclick=function(){cur=hist.pop();render()};
+}
+render();
+})();
+</script>

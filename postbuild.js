@@ -92,6 +92,7 @@ write('llms.txt', [
   '- [About](' + SITE + '/about/)',
   '- [Disclaimer](' + SITE + '/disclaimer/)',
   '- [RSS feed](' + SITE + '/feed.xml)',
+  '- [Do I need to comply with the EU AI Act? (interactive checker)](' + SITE + '/tools/eu-ai-act-checker/)',
   '- [Sitemap](' + SITE + '/sitemap.xml)', ''
 ].join('\n'));
 const mdDoc = p => ['# ' + p.meta.title, '', '> ' + p.meta.description, '', '- Source: ' + urlOf(p), '- Region: ' + p.meta.region, '- Published: ' + p.meta.date, '- Last reviewed: ' + (p.meta.updated || p.meta.date), '- Publisher: ' + NAME + ' (' + SITE + ')', '- Licence: CC BY 4.0 (please attribute and link to the source URL)', '- General information, not legal advice', '', absLinks(p.body), ''].join('\n');
@@ -124,6 +125,7 @@ write('data/guides.json', JSON.stringify({ publisher: NAME, url: SITE + '/', lic
 const entries = [
   { loc: SITE + '/', lastmod: latest, priority: '1.0', images: [SITE + '/og/default.jpg'] },
   ...posts.map(p => ({ loc: urlOf(p), lastmod: p.meta.updated || p.meta.date, priority: '0.9', images: [ogOf(p), SITE + '/img/' + p.meta.slug + '.jpg'] })),
+  { loc: SITE + '/tools/eu-ai-act-checker/', lastmod: VERIFIED, priority: '0.8', images: [] },
   { loc: SITE + '/open-data/', lastmod: VERIFIED, priority: '0.6', images: [] },
   { loc: SITE + '/about/', lastmod: VERIFIED, priority: '0.5', images: [] },
   { loc: SITE + '/disclaimer/', lastmod: VERIFIED, priority: '0.3', images: [] }

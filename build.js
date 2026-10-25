@@ -340,6 +340,16 @@ for (const pg of readDir('pages')) {
   urls.push(route);
 }
 
+
+{
+  const toolHtml = fs.readFileSync(path.join(__dirname, 'content', 'tools', 'eu-ai-act-checker.html'), 'utf8');
+  const route = '/tools/eu-ai-act-checker/';
+  const title = 'Do I Need to Comply with the EU AI Act?';
+  const description = 'A free seven-question check that shows whether the EU AI Act applies to you, your likely role, key obligations, dates and official sources. Educational, not legal advice.';
+  const body = `<div class='page-hero'><div class='container'><h1>${esc(title)}</h1><p class='lead'>${esc(description)}</p></div></div>` + toolHtml;
+  write('tools/eu-ai-act-checker/index.html', layout({ title, description, route, body, guides: posts }));
+  urls.push(route);
+}
 write('offline/index.html', layout({ title: 'You are offline', description: 'You are offline.', route: '/offline/', body: `<div class='page-hero'><div class='container'><h1>You are offline</h1><p class='lead'>This page is not saved on your device yet. Reconnect and try again, or open a guide you have already visited.</p><a class='btn btn-primary' href='/'>Back to home</a></div></div>`, guides: posts }));
 write('404.html', layout({ title: 'Page not found', description: 'Page not found', route: '/404', body: `<div class='page-hero'><div class='container'><h1>Page not found</h1><p class='lead'>That page does not exist. Try the guides instead.</p><a class='btn btn-primary' href='/'>Back to all guides</a></div></div>`, guides: posts }));
 

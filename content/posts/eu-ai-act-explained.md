@@ -10,6 +10,8 @@ description: What the EU AI Act is, who it applies to, how the risk tiers work, 
 The EU AI Act (Regulation (EU) 2024/1689) is the first broad, binding law for artificial intelligence. It entered into force on 1 August 2024 and applies in stages. If you build or use AI and have any link to the EU market, it matters even if your company is based somewhere else.
 
 ## Who it applies to
+Not sure whether this covers you? Try the [seven-question EU AI Act checker](/tools/eu-ai-act-checker/).
+
 The Act reaches beyond Europe. It covers providers that place AI systems on the EU market, deployers (organisations that use AI) located in the EU, and in some cases providers and deployers outside the EU whose AI output is used in the EU. A startup in the US or Kenya selling to EU customers can be in scope.
 
 ## The four risk tiers
