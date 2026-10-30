@@ -1,5 +1,5 @@
 ---
-title: "China AI regulation in 2026: the rules that apply today"
+title: China AI regulation in 2026: the rules that apply today
 slug: china-ai-regulation
 region: China
 date: 2026-10-30
