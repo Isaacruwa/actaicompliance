@@ -165,10 +165,10 @@ svg{max-width:100%}
 .feature .ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(79,70,229,.12),rgba(6,182,212,.14));color:var(--brand);margin-bottom:14px}
 .feature h3{margin:0 0 6px;font-size:18px;color:var(--ink)}
 .feature p{margin:0;color:var(--muted);font-size:15px}
-.team-strip{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-bottom:10px;font-size:12px;color:rgba(255,255,255,.62)}
-.team-strip a{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:inherit;text-decoration:none;opacity:.85}
-.team-strip a:hover{opacity:1;text-decoration:underline}
-.team-strip img,.team-strip .pi svg{width:14px;height:14px;display:block;border-radius:3px}
+.team-strip{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin-bottom:12px;font-size:12px;color:rgba(255,255,255,.62)}
+.site-footer .team-strip a{display:inline-flex;flex-direction:row;align-items:center;gap:6px;white-space:nowrap;padding:0;font-size:12px;color:rgba(255,255,255,.75)}
+.site-footer .team-strip a:hover{color:#fff;text-decoration:underline}
+.team-strip img,.team-strip .pi svg{width:14px;height:14px;display:block;border-radius:3px;flex:none}
 .team-strip .pi{display:inline-flex}
 .page-hero{background:linear-gradient(180deg,#f6f7fb,#fff);border-bottom:1px solid var(--line)}
 .page-hero .container{max-width:820px;padding-top:44px;padding-bottom:36px}
