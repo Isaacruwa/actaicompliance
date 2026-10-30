@@ -7,7 +7,7 @@ const SITE = { name: 'ActAI Compliance', url: 'https://actaicompliance.com', tag
 const ATTESTLY = 'https://attestly.online/?utm_source=actaicompliance';
 const DIST = path.join(__dirname, 'dist');
 const FLAGS = { 'European Union': '🇪🇺', 'United Kingdom': '🇬🇧', 'United States': '🇺🇸', 'Canada': '🇨🇦', 'Global overview': '🌍' };
-const ORDER = ['eu-ai-act-explained', 'us-ai-regulation', 'us-state-ai-laws', 'uk-ai-regulation', 'canada-ai-regulation', 'which-ai-laws-apply-to-you'];
+const ORDER = ['eu-ai-act-explained', 'us-ai-regulation', 'us-state-ai-laws', 'uk-ai-regulation', 'canada-ai-regulation', 'china-ai-regulation', 'which-ai-laws-apply-to-you'];
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');

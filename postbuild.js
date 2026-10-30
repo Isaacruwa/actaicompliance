@@ -9,7 +9,7 @@ const NAME = 'ActAI Compliance';
 const EMAIL = 'isaac@actaicompliance.com';
 const KEY = '69a9a34a62654421992f41db833ac23a';
 const VERIFIED = '2026-10-11';
-const ORDER = ['eu-ai-act-explained', 'us-ai-regulation', 'us-state-ai-laws', 'uk-ai-regulation', 'canada-ai-regulation', 'which-ai-laws-apply-to-you'];
+const ORDER = ['eu-ai-act-explained', 'us-ai-regulation', 'us-state-ai-laws', 'uk-ai-regulation', 'canada-ai-regulation', 'china-ai-regulation', 'which-ai-laws-apply-to-you'];
 
 const DIAGRAMS = {
   'eu-ai-act-explained': [
