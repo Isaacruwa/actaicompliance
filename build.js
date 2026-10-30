@@ -166,7 +166,7 @@ svg{max-width:100%}
 .feature h3{margin:0 0 6px;font-size:18px;color:var(--ink)}
 .feature p{margin:0;color:var(--muted);font-size:15px}
 .team-strip{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-bottom:10px;font-size:12px;color:rgba(255,255,255,.62)}
-.team-strip a{display:inline-flex;align-items:center;gap:5px;color:inherit;text-decoration:none;opacity:.85}
+.team-strip a{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:inherit;text-decoration:none;opacity:.85}
 .team-strip a:hover{opacity:1;text-decoration:underline}
 .team-strip img,.team-strip .pi svg{width:14px;height:14px;display:block;border-radius:3px}
 .team-strip .pi{display:inline-flex}
@@ -229,7 +229,7 @@ const PARTNERS = [
   { href: 'https://eobcheck.online', name: 'EOBCheck', icon: fav('eobcheck.online') }
 ];
 
-const partnersStrip = `<div class='team-strip'><span>From our team:</span>${PARTNERS.map(p => `<a href='${p.href}' target='_blank' rel='noopener'>${p.icon}${p.name}</a>`).join('')}</div>`;
+const partnersStrip = `<div class='team-strip'><span>From our team:</span>${PARTNERS.map(p => `<a href='${p.href}' target='_blank' rel='noopener'><span>${p.name}</span>${p.icon}</a>`).join('')}</div>`;
 
 function layout({ title, description, route, body, type = 'website', extraHead = '', guides = [] }) {
   const fullTitle = route === '/' ? SITE.name + ' | ' + SITE.tagline : title + ' | ' + SITE.name;
