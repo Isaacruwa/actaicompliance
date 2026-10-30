@@ -165,16 +165,11 @@ svg{max-width:100%}
 .feature .ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(79,70,229,.12),rgba(6,182,212,.14));color:var(--brand);margin-bottom:14px}
 .feature h3{margin:0 0 6px;font-size:18px;color:var(--ink)}
 .feature p{margin:0;color:var(--muted);font-size:15px}
-.partners{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
-.partner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px 20px;border:1px solid var(--line);border-radius:var(--radius);background:#fff;text-decoration:none;transition:transform .2s,box-shadow .2s}
-.partner:hover{transform:translateY(-3px);box-shadow:0 18px 40px -22px rgba(15,23,60,.35)}
-.wm{display:inline-flex;align-items:center;gap:8px;font-size:27px;letter-spacing:-.03em;color:var(--ink);font-weight:500}
-.wm svg{width:26px;height:26px;flex:none}
-.wm b{font-weight:800}
-.wm.attestly b{color:#4f46e5}
-.wm.kiver b{color:#0ea5e9}
-.wm.eob b{color:#0d9488}
-.partner small{color:var(--muted);font-size:13px}
+.team-strip{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-bottom:10px;font-size:12px;color:rgba(255,255,255,.62)}
+.team-strip a{display:inline-flex;align-items:center;gap:5px;color:inherit;text-decoration:none;opacity:.85}
+.team-strip a:hover{opacity:1;text-decoration:underline}
+.team-strip img,.team-strip .pi svg{width:14px;height:14px;display:block;border-radius:3px}
+.team-strip .pi{display:inline-flex}
 .page-hero{background:linear-gradient(180deg,#f6f7fb,#fff);border-bottom:1px solid var(--line)}
 .page-hero .container{max-width:820px;padding-top:44px;padding-bottom:36px}
 .crumbs{font-size:14px;color:var(--muted);margin-bottom:14px}
@@ -227,13 +222,14 @@ const FEATURES = [
 ];
 
 const PARTNER_MARK = `<svg viewBox='0 0 64 64' aria-hidden='true'><rect width='64' height='64' rx='14' fill='#4f46e5'/><path d='M32 12.8 49.9 19.2V33.3L32 51.2 14.1 33.3V19.2Z' fill='#fff'/><path d='M24.3 32l5.8 5.8 10.9-12.2' fill='none' stroke='#4f46e5' stroke-width='3.8' stroke-linecap='round' stroke-linejoin='round'/></svg>`;
+const fav = (d) => `<img src='https://www.google.com/s2/favicons?domain=${d}&sz=32' width='16' height='16' alt='' loading='lazy' decoding='async' referrerpolicy='no-referrer'>`;
 const PARTNERS = [
-  { href: ATTESTLY, domain: 'attestly.online', logo: `<span class='wm attestly'>${PARTNER_MARK}<b>Attestly</b></span>` },
-  { href: 'https://getkiver.com', domain: 'getkiver.com', logo: `<span class='wm kiver'><b>Kiver</b></span>` },
-  { href: 'https://eobcheck.online', domain: 'eobcheck.online', logo: `<span class='wm eob'><b>EOB</b>Check</span>` }
+  { href: ATTESTLY, name: 'Attestly', icon: `<span class='pi'>${PARTNER_MARK}</span>` },
+  { href: 'https://getkiver.com', name: 'Kiver', icon: fav('getkiver.com') },
+  { href: 'https://eobcheck.online', name: 'EOBCheck', icon: fav('eobcheck.online') }
 ];
 
-const partnersSection = `<section class='section soft'><div class='container'><div class='eyebrow'>Our network</div><h2 class='title'>More from our team</h2><p class='sub'>Other products built by the team behind ActAI Compliance.</p><div class='partners'>${PARTNERS.map(p => `<a class='partner' href='${p.href}' target='_blank' rel='noopener'>${p.logo}<small>${p.domain}</small></a>`).join('')}</div></div></section>`;
+const partnersStrip = `<div class='team-strip'><span>From our team:</span>${PARTNERS.map(p => `<a href='${p.href}' target='_blank' rel='noopener'>${p.icon}${p.name}</a>`).join('')}</div>`;
 
 function layout({ title, description, route, body, type = 'website', extraHead = '', guides = [] }) {
   const fullTitle = route === '/' ? SITE.name + ' | ' + SITE.tagline : title + ' | ' + SITE.name;
@@ -270,8 +266,7 @@ ${extraHead}
 <main>
 ${body}
 </main>
-${partnersSection}
-<footer class='site-footer'><div class='container'><div class='footer-grid'><div><a class='brand' href='/'>${MARK}ActAI <span>Compliance</span></a><p>Plain-English guides to AI regulation around the world.</p></div><div><h4>Guides</h4>${footerGuides}</div><div><h4>Site</h4><a href='/about/'>About</a><a href='/disclaimer/'>Disclaimer</a><a href='/sitemap.xml'>Sitemap</a></div></div><div class='footer-bottom'>&copy; ${new Date().getFullYear()} ${SITE.name}. General information only, not legal advice. Laws change, so check current rules or speak to a qualified lawyer.</div></div></footer>
+<footer class='site-footer'><div class='container'><div class='footer-grid'><div><a class='brand' href='/'>${MARK}ActAI <span>Compliance</span></a><p>Plain-English guides to AI regulation around the world.</p></div><div><h4>Guides</h4>${footerGuides}</div><div><h4>Site</h4><a href='/about/'>About</a><a href='/disclaimer/'>Disclaimer</a><a href='/sitemap.xml'>Sitemap</a></div></div><div class='footer-bottom'>${partnersStrip}&copy; ${new Date().getFullYear()} ${SITE.name}. General information only, not legal advice. Laws change, so check current rules or speak to a qualified lawyer.</div></div></footer>
 <script src='/webmcp.js' defer></script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})})}</script>
 </body>
