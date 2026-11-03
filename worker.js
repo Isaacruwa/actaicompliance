@@ -1,3 +1,4 @@
+import { handleMembers } from './members.js';
 // Minimal A2A (Agent2Agent) JSON-RPC endpoint. Everything else is served as static files.
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -196,6 +197,10 @@ export default {
     const url = new URL(request.url);
     const redirect = canonicalRedirect(request, url);
     if (redirect) return redirect;
+    if (url.pathname === '/paddle/webhook' || url.pathname === '/unsubscribe' || url.pathname === '/admin' || url.pathname.startsWith('/admin/')) {
+      const m = await handleMembers(request, env, url);
+      if (m) return m;
+    }
     if (url.pathname === '/a2a' || url.pathname === '/a2a/') return handle(request, env);
     if (url.pathname === '/mcp' || url.pathname === '/mcp/') return handleMcp(request, env);
     if (HTML_ROUTES.test(url.pathname)) return serveHtmlOrMarkdown(request, env, url);

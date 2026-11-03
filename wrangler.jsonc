@@ -6,6 +6,9 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/a2a", "/a2a/", "/mcp", "/mcp/", "/", "/guides/", "/guides/*/", "/about/", "/disclaimer/", "/open-data/"]
-  }
+    "run_worker_first": ["/admin", "/admin/*", "/paddle/webhook", "/unsubscribe", "/a2a", "/a2a/", "/mcp", "/mcp/", "/", "/guides/", "/guides/*/", "/about/", "/disclaimer/", "/open-data/"]
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "actai-subscribers", "database_id": "bf8feb8a-15db-4ff7-bf39-819076702fc2" }
+  ]
 }
