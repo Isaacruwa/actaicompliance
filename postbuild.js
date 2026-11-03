@@ -123,6 +123,8 @@ write('data/eu-ai-act-timeline.csv', ['date,event,applies_to,status,note', ...ro
 write('data/guides.json', JSON.stringify({ publisher: NAME, url: SITE + '/', license: 'CC BY 4.0', license_url: 'https://creativecommons.org/licenses/by/4.0/', last_verified: VERIFIED, guides: posts.map(p => ({ slug: p.meta.slug, title: p.meta.title, region: p.meta.region, description: p.meta.description, url: urlOf(p), markdown_url: mdUrl(p), image: ogOf(p), published: p.meta.date, last_reviewed: p.meta.updated || p.meta.date, word_count: words(p.body) })) }, null, 2));
 
 /* ---- sitemap with lastmod and images ---- */
+const PADCFG = JSON.parse(fs.readFileSync(path.join(ROOT, 'content', 'config', 'paddle.json'), 'utf8'));
+const TRACKER_ON = !!(PADCFG.clientToken && PADCFG.priceId && PADCFG.priceLabel);
 const entries = [
   { loc: SITE + '/', lastmod: latest, priority: '1.0', images: [SITE + '/og/default.jpg'] },
   ...posts.map(p => ({ loc: urlOf(p), lastmod: p.meta.updated || p.meta.date, priority: '0.9', images: [ogOf(p), SITE + '/img/' + p.meta.slug + '.jpg'] })),
@@ -130,7 +132,11 @@ const entries = [
   { loc: SITE + '/tools/us-ai-law-checker/', lastmod: VERIFIED, priority: '0.8', images: [] },
   { loc: SITE + '/open-data/', lastmod: VERIFIED, priority: '0.6', images: [] },
   { loc: SITE + '/about/', lastmod: VERIFIED, priority: '0.5', images: [] },
-  { loc: SITE + '/disclaimer/', lastmod: VERIFIED, priority: '0.3', images: [] }
+  ...(TRACKER_ON ? [{ loc: SITE + '/tracker/', lastmod: VERIFIED, priority: '0.7', images: [] }] : []),
+  { loc: SITE + '/disclaimer/', lastmod: VERIFIED, priority: '0.3', images: [] },
+  { loc: SITE + '/terms/', lastmod: VERIFIED, priority: '0.2', images: [] },
+  { loc: SITE + '/refund-policy/', lastmod: VERIFIED, priority: '0.2', images: [] },
+  { loc: SITE + '/privacy/', lastmod: VERIFIED, priority: '0.2', images: [] }
 ];
 write('sitemap.xml', `<?xml version='1.0' encoding='UTF-8'?>\n<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9' xmlns:image='http://www.google.com/schemas/sitemap-image/1.1'>${entries.map(e => `<url><loc>${e.loc}</loc><lastmod>${e.lastmod}</lastmod><priority>${e.priority}</priority>${e.images.map(i => `<image:image><image:loc>${i}</image:loc></image:image>`).join('')}</url>`).join('')}</urlset>\n`);
 write(KEY + '.txt', KEY);

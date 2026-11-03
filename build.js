@@ -170,6 +170,7 @@ svg{max-width:100%}
 .site-footer .team-strip a:hover{color:#fff;text-decoration:underline}
 .team-strip img,.team-strip .pi svg{width:14px;height:14px;display:block;border-radius:3px;flex:none}
 .team-strip .pi{display:inline-flex}
+.fine{font-size:14px;color:var(--muted);margin:10px 0 0}
 .page-hero{background:linear-gradient(180deg,#f6f7fb,#fff);border-bottom:1px solid var(--line)}
 .page-hero .container{max-width:820px;padding-top:44px;padding-bottom:36px}
 .crumbs{font-size:14px;color:var(--muted);margin-bottom:14px}
@@ -231,6 +232,10 @@ const PARTNERS = [
 
 const partnersStrip = `<div class='team-strip'><span>From our team:</span>${PARTNERS.map(p => `<a href='${p.href}' target='_blank' rel='noopener'><span>${p.name}</span>${p.icon}</a>`).join('')}</div>`;
 
+const PADDLE = JSON.parse(fs.readFileSync(path.join(__dirname, 'content', 'config', 'paddle.json'), 'utf8'));
+const TRACKER_LIVE = !!(PADDLE.clientToken && PADDLE.priceId && PADDLE.priceLabel);
+const trackerFooter = TRACKER_LIVE ? "<a href='/tracker/'>AI Regulation Tracker</a>" : '';
+
 function layout({ title, description, route, body, type = 'website', extraHead = '', guides = [] }) {
   const fullTitle = route === '/' ? SITE.name + ' | ' + SITE.tagline : title + ' | ' + SITE.name;
   const url = SITE.url + route;
@@ -266,7 +271,7 @@ ${extraHead}
 <main>
 ${body}
 </main>
-<footer class='site-footer'><div class='container'><div class='footer-grid'><div><a class='brand' href='/'>${MARK}ActAI <span>Compliance</span></a><p>Plain-English guides to AI regulation around the world.</p></div><div><h4>Guides</h4>${footerGuides}</div><div><h4>Site</h4><a href='/about/'>About</a><a href='/disclaimer/'>Disclaimer</a><a href='/sitemap.xml'>Sitemap</a></div></div><div class='footer-bottom'>${partnersStrip}&copy; ${new Date().getFullYear()} ${SITE.name}. General information only, not legal advice. Laws change, so check current rules or speak to a qualified lawyer.</div></div></footer>
+<footer class='site-footer'><div class='container'><div class='footer-grid'><div><a class='brand' href='/'>${MARK}ActAI <span>Compliance</span></a><p>Plain-English guides to AI regulation around the world.</p></div><div><h4>Guides</h4>${footerGuides}</div><div><h4>Site</h4><a href='/about/'>About</a><a href='/disclaimer/'>Disclaimer</a><a href='/terms/'>Terms</a><a href='/refund-policy/'>Refund policy</a><a href='/privacy/'>Privacy</a>${trackerFooter}<a href='/sitemap.xml'>Sitemap</a></div></div><div class='footer-bottom'>${partnersStrip}&copy; ${new Date().getFullYear()} ${SITE.name}. General information only, not legal advice. Laws change, so check current rules or speak to a qualified lawyer.</div></div></footer>
 <script src='/webmcp.js' defer></script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})})}</script>
 </body>
@@ -354,6 +359,35 @@ for (const pg of readDir('pages')) {
   const body = `<div class='page-hero'><div class='container'><h1>${esc(title)}</h1><p class='lead'>${esc(description)}</p></div></div>` + toolHtml;
   write('tools/us-ai-law-checker/index.html', layout({ title, description, route, body, guides: posts }));
   urls.push(route);
+}
+{
+  const route = '/tracker/';
+  const title = 'AI Regulation Tracker';
+  const description = 'A plain-English monthly briefing on what changed in AI law across the EU, US, UK, Canada and China, with dates and official sources.';
+  const buy = TRACKER_LIVE
+    ? `<button class='btn btn-primary' id='buy' type='button'>Subscribe for ${esc(PADDLE.priceLabel)} ${esc(PADDLE.billingNote)}</button><p class='fine'>Taxes added at checkout where they apply. Payments are handled by Paddle, our Merchant of Record. See the <a href='/refund-policy/'>30-day refund policy</a>, <a href='/terms/'>terms</a> and <a href='/privacy/'>privacy policy</a>.</p>
+<script src='https://cdn.paddle.com/paddle/v2/paddle.js'></script>
+<script>(function(){try{Paddle.Environment.set(${JSON.stringify(PADDLE.environment)});Paddle.Initialize({token:${JSON.stringify(PADDLE.clientToken)}});document.getElementById('buy').addEventListener('click',function(){Paddle.Checkout.open({items:[{priceId:${JSON.stringify(PADDLE.priceId)},quantity:1}]})})}catch(e){}})();</script>`
+    : `<p class='fine'>Not open for subscriptions yet.</p>`;
+  const inner = `<div class='page-hero'><div class='container'><h1>${esc(title)}</h1><p class='lead'>${esc(description)}</p></div></div><article class='prose'>
+<h2>What you get</h2>
+<p>AI law changes every month. The AI Regulation Tracker is a short briefing, emailed once a month, that tells you what changed and what it means, so you do not have to follow regulators, legislatures and law-firm blogs yourself.</p>
+<ul>
+<li><strong>What changed.</strong> New laws, amendments, guidance and enforcement in the EU, US (federal and state), UK, Canada and China.</li>
+<li><strong>Who it affects.</strong> A plain-English line on which companies and uses are caught.</li>
+<li><strong>Key dates.</strong> Start dates, deadlines and grace periods, so you can see what is coming.</li>
+<li><strong>Official sources.</strong> A link to the primary text or regulator page for every item.</li>
+</ul>
+<h2>Who it is for</h2>
+<p>Founders, product and compliance leads, and advisers who build, sell or use AI and want to stay current without reading legal texts. It explains obligations. It does not produce compliance documents, and it is not legal advice.</p>
+<h2>Price</h2>
+<p><strong>${TRACKER_LIVE ? esc(PADDLE.priceLabel) + ' ' + esc(PADDLE.billingNote) : 'To be announced'}</strong>. Cancel any time. If it is not for you, ask for a refund within 30 days.</p>
+${buy}
+<h2>Free resources</h2>
+<p>Our guides and checkers stay free: <a href='/tools/eu-ai-act-checker/'>EU AI Act checker</a>, <a href='/tools/us-ai-law-checker/'>US AI law checker</a> and the <a href='/#guides'>guides</a>.</p>
+</article>`;
+  write('tracker/index.html', layout({ title, description, route, body: inner, extraHead: TRACKER_LIVE ? '' : "<meta name='robots' content='noindex'>", guides: posts }));
+  if (TRACKER_LIVE) urls.push(route);
 }
 write('offline/index.html', layout({ title: 'You are offline', description: 'You are offline.', route: '/offline/', body: `<div class='page-hero'><div class='container'><h1>You are offline</h1><p class='lead'>This page is not saved on your device yet. Reconnect and try again, or open a guide you have already visited.</p><a class='btn btn-primary' href='/'>Back to home</a></div></div>`, guides: posts }));
 write('404.html', layout({ title: 'Page not found', description: 'Page not found', route: '/404', body: `<div class='page-hero'><div class='container'><h1>Page not found</h1><p class='lead'>That page does not exist. Try the guides instead.</p><a class='btn btn-primary' href='/'>Back to all guides</a></div></div>`, guides: posts }));
