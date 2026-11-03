@@ -14,6 +14,8 @@ Federal agencies apply laws that already exist. The FTC polices deceptive or unf
 The NIST AI Risk Management Framework is voluntary, but it is widely used as a practical benchmark and is a sensible starting point for internal governance.
 
 ## State laws worth knowing
+Not sure which apply to you? Try the [US AI law checker](/tools/us-ai-law-checker/).
+
 - **Colorado:** the original 2024 Colorado AI Act was repealed and replaced in 2026 by a narrower automated decision-making law, reported to take effect on 1 January 2027. The state attorney general is still working on rules, so verify the current status before you act.
 - **California:** several AI-related laws and privacy-agency rules apply, including rules on automated decision-making technology and transparency duties for large frontier AI developers.
 - **Texas:** the Texas Responsible AI Governance Act took effect on 1 January 2026.

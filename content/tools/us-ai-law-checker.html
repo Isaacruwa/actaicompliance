@@ -1,0 +1,157 @@
+<style>
+.chk{max-width:760px;margin:0 auto;padding:32px 20px 24px}
+.chk .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:0 10px 30px -18px rgba(11,18,32,.35)}
+.chk .prog{height:6px;background:var(--soft);border-radius:99px;overflow:hidden;margin-bottom:18px}
+.chk .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4f46e5,#06b6d4);transition:width .25s}
+.chk .step{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.chk h2{margin:6px 0 6px;font-size:24px;line-height:1.3;color:var(--ink)}
+.chk .help{color:var(--muted);margin:0 0 16px;font-size:16px}
+.chk label.opt{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--line);border-radius:12px;margin:0 0 10px;cursor:pointer;line-height:1.5}
+.chk label.opt:hover{border-color:var(--brand)}
+.chk label.opt:has(input:checked){border-color:var(--brand);background:#f3f2ff}
+.chk label.opt input{margin-top:5px;flex:none;accent-color:#4f46e5}
+.chk label.opt small{display:block;color:var(--muted);font-size:14px}
+.chk .row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.chk button{font:inherit;font-weight:700;border-radius:12px;padding:12px 20px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.chk button.go{background:linear-gradient(135deg,#4f46e5,#06b6d4);color:#fff;border:0}
+.chk button:disabled{opacity:.45;cursor:not-allowed}
+.chk .badge{display:inline-block;font-size:13px;font-weight:800;padding:4px 10px;border-radius:99px;background:#eef2ff;color:#3730a3}
+.chk .badge.red{background:#fee2e2;color:#991b1b}.chk .badge.green{background:#dcfce7;color:#166534}.chk .badge.amber{background:#fef3c7;color:#92400e}
+.chk .res h3{margin:22px 0 6px;font-size:18px;color:var(--ink)}
+.chk .res ul{margin:0 0 6px;padding-left:20px}.chk .res li{margin:0 0 6px}
+.chk .disc{margin-top:22px;padding:14px 16px;border-radius:12px;background:var(--soft);font-size:15px;color:var(--muted)}
+.chk-static{max-width:720px;margin:0 auto;padding:8px 20px 8px;font-size:17px}
+</style>
+<div class='chk' id='chk'>
+<noscript><div class='card'><p>This tool needs JavaScript. Without it, read the <a href='/guides/us-state-ai-laws/'>US state AI laws guide</a> or the <a href='/guides/us-ai-regulation/'>US AI regulation overview</a>.</p></div></noscript>
+<div class='card' id='card' aria-live='polite'></div>
+</div>
+<div class='chk-static'>
+<h2>What this tool covers</h2>
+<p>Six short questions about where your customers are, your role, what your AI does, who is affected and how much a person is involved. The answers show which US state and federal AI rules you should look at first, from Colorado, California, Texas, Illinois, New York, Connecticut and Washington to the Federal Trade Commission, plus the dates that matter.</p>
+<p>Nothing you select is sent anywhere. The answers stay in your browser. The result is a starting point for your own reading of the law, not a ruling. See the <a href='/guides/us-state-ai-laws/'>US state AI laws guide</a> for background and <a href='/disclaimer/'>the disclaimer</a>.</p>
+</div>
+<script>
+(function(){
+var SRC={
+ co:['Colorado General Assembly','https://leg.colorado.gov/'],
+ coag:['Colorado Attorney General','https://coag.gov/'],
+ ca:['California Legislative Information','https://leginfo.legislature.ca.gov/'],
+ cppa:['California Privacy Protection Agency','https://cppa.ca.gov/'],
+ tx:['Texas Legislature Online','https://capitol.texas.gov/'],
+ txag:['Texas Attorney General','https://www.texasattorneygeneral.gov/'],
+ il:['Illinois General Assembly','https://www.ilga.gov/'],
+ ny:['New York State Senate (bills and laws)','https://www.nysenate.gov/'],
+ nyc:['NYC Department of Consumer and Worker Protection','https://www.nyc.gov/site/dca/index.page'],
+ ct:['Connecticut General Assembly','https://www.cga.ct.gov/'],
+ wa:['Washington State Legislature','https://leg.wa.gov/'],
+ ftc:['Federal Trade Commission: artificial intelligence','https://www.ftc.gov/industry/technology/artificial-intelligence'],
+ eeoc:['US Equal Employment Opportunity Commission','https://www.eeoc.gov/'],
+ nist:['NIST AI Risk Management Framework','https://www.nist.gov/itl/ai-risk-management-framework']
+};
+var Q={
+ st:{t:'Where are the people you serve or affect?',h:'State law follows your users, not your office. Tick every state where you have customers, employees or applicants.',multi:1,o:[
+  ['CA','California'],['CO','Colorado'],['TX','Texas'],['IL','Illinois'],['NY','New York (state or New York City)'],['CT','Connecticut'],['WA','Washington'],['OT','Other states only','Many other states have narrower AI laws. Check your state attorney general.']]},
+ role:{t:'What is your role?',h:'Pick the closest one. One company can have different roles for different systems.',o:[
+  ['dev','I build or train the AI','Developer. This includes fine-tuning or building a system for sale or public use.'],
+  ['dep','I use AI built by someone else in my business','Deployer.'],
+  ['int','Purely internal productivity use, with no decisions about people','For example drafting, summarising or coding help for staff.']]},
+ what:{t:'What does the AI do?',h:'Tick everything that applies.',multi:1,o:[
+  ['emp','Helps decide on hiring, promotion, pay, discipline or firing','Employment decisions.'],
+  ['cons','Helps decide on credit, housing, insurance, health care, education or essential services','Other consequential decisions about people.'],
+  ['chat','Is a public chatbot or an AI companion'],
+  ['gen','Generates images, audio or video for the public'],
+  ['front','Is a very large model I train myself','Frontier model developer.'],
+  ['none','None of the above']]},
+ who:{t:'Who is affected by or uses the AI?',h:'Tick all that apply.',multi:1,o:[
+  ['con','Consumers or members of the public'],['wrk','Workers or job applicants'],['kid','Children or teenagers'],['biz','Businesses only']]},
+ human:{t:'How much do people rely on the AI output for these decisions?',h:'Applies because your AI touches decisions about people.',o:[
+  ['main','The AI decides, or its output is the main basis for the decision'],
+  ['review','A person reviews it and can really change the outcome, but the AI materially influences it'],
+  ['narrow','It plays a minor supporting role, such as formatting or sorting']]},
+ scale:{t:'How large is your model and your business?',h:'California and New York frontier laws target only the biggest developers.',o:[
+  ['big','Trained with more than 10^26 operations, and more than $500 million in annual revenue'],
+  ['mid','Trained with more than 10^26 operations, but under $500 million in annual revenue'],
+  ['small','Smaller than that']]}
+};
+var A={},cur='st',hist=[],card=document.getElementById('card');
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function w(k){return (A.what||[]).indexOf(k)>-1}
+function st(k){return (A.st||[]).indexOf(k)>-1}
+function decides(){return (w('emp')||w('cons'))&&A.role!=='int'}
+function next(k){
+ if(k==='st')return 'role';
+ if(k==='role')return A.role==='int'?'END':'what';
+ if(k==='what')return 'who';
+ if(k==='who'){ if(decides())return 'human'; if(w('front')&&A.role==='dev')return 'scale'; return 'END'}
+ if(k==='human'){ if(w('front')&&A.role==='dev')return 'scale'; return 'END'}
+ return 'END';
+}
+function total(){return 4+(decides()?1:0)+(w('front')&&A.role==='dev'?1:0)}
+function render(){
+ if(cur==='END')return result();
+ var q=Q[cur],n=hist.length+1,t=total();
+ var h='<div class="prog"><i style="width:'+Math.min(100,(n-1)/t*100)+'%"></i></div><div class="step">Question '+n+' of up to 6</div><h2>'+esc(q.t)+'</h2><p class="help">'+esc(q.h)+'</p><form>';
+ q.o.forEach(function(o){h+='<label class="opt"><input type="'+(q.multi?'checkbox':'radio')+'" name="q" value="'+o[0]+'"><span>'+esc(o[1])+(o[2]?'<small>'+esc(o[2])+'</small>':'')+'</span></label>'});
+ h+='</form><div class="row">'+(hist.length?'<button type="button" id="bk">Back</button>':'')+'<button type="button" class="go" id="nx" disabled>Next</button></div>';
+ card.innerHTML=h;
+ var inputs=card.querySelectorAll('input'),nx=document.getElementById('nx'),prev=A[cur];
+ var excl=cur==='what'?'none':(cur==='st'?'OT':(cur==='who'?'biz':''));
+ inputs.forEach(function(i){ if(prev&&(q.multi?prev.indexOf(i.value)>-1:prev===i.value))i.checked=true; i.addEventListener('change',function(){
+  if(q.multi&&excl){ if(i.value===excl&&i.checked)inputs.forEach(function(x){if(x!==i)x.checked=false}); else if(i.checked)inputs.forEach(function(x){if(x.value===excl)x.checked=false}); }
+  upd()})});
+ function upd(){var any=false;inputs.forEach(function(i){if(i.checked)any=true});nx.disabled=!any}
+ upd();
+ nx.onclick=function(){var v=[];inputs.forEach(function(i){if(i.checked)v.push(i.value)});A[cur]=q.multi?v:v[0];hist.push(cur);cur=next(cur);render();window.scrollTo({top:card.offsetTop-80,behavior:'smooth'})};
+ var bk=document.getElementById('bk');if(bk)bk.onclick=function(){cur=hist.pop();render()};
+}
+function li(a){return '<ul>'+a.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'}
+function build(){
+ var L=[],S={ftc:1,nist:1};
+ function add(name,why,date,keys){L.push({n:name,w:why,d:date});keys.forEach(function(k){S[k]=1})}
+ var narrow=A.human==='narrow';
+ if(w('emp')&&A.role!=='int'){
+  if(st('CO')&&!narrow)add('Colorado SB 26-189 (automated decision-making)','Covers automated decision-making that materially influences employment decisions. Deployers give notice before use, send an adverse-outcome notice within 30 days, and offer correction and human review. Only the attorney general enforces it, with a cure period until 1 January 2030.','Effective 1 January 2027',['co','coag']);
+  if(st('IL'))add('Illinois HB 3773','Using AI in employment decisions in a discriminatory way is a civil rights violation, and employers must give notice when AI is used.','In effect since 1 January 2026',['il']);
+  if(st('NY'))add('New York City Local Law 144','If you hire or promote in New York City with an automated employment decision tool, you need an annual independent bias audit and must notify candidates.','In effect since 5 July 2023',['nyc']);
+  if(st('CA')&&!narrow)add('California CCPA automated decision-making rules','Rules on automated decision-making technology for significant decisions, including employment, with notices, opt-out and access rights. Also check California SB 947 on automated discipline and firing.','Significant-decision rules from 1 January 2027',['cppa','ca']);
+  if(st('CT'))add('Connecticut CART Act (Public Act 26-15)','Includes duties for automated employment decision tools. Details changed in later amendments, so read the act.','Deployments from 1 October 2027',['ct']);
+ }
+ if(w('cons')&&A.role!=='int'){
+  if(st('CO')&&!narrow)add('Colorado SB 26-189 (automated decision-making)','Covers consequential decisions in education, housing, lending, insurance, health care and essential government services. Notice before use, adverse-outcome notice within 30 days, and correction and human review rights. Attorney general enforcement only.','Effective 1 January 2027',['co','coag']);
+  if(st('CA')&&!narrow)add('California CCPA automated decision-making rules','Rules for significant decisions about people, with notice, opt-out and access rights.','Significant-decision rules from 1 January 2027',['cppa']);
+ }
+ if(w('chat')){
+  if(st('CA'))add('California companion chatbot and child-safety laws','California signed laws in September 2026 on companion chatbots, including SB 1119. Check the scope and the duties for minors.','Signed September 2026. Check start dates in the bill text',['ca']);
+  if(st('WA'))add('Washington HB 2225 (chatbots)','Reported to impose companion-chatbot duties. Check the bill text.','Reported start 1 January 2027',['wa']);
+  if(st('CT'))add('Connecticut companion-chatbot duties','Duties for companion chatbots offered to the public. Check the act.','From 1 January 2027',['ct']);
+ }
+ if(w('gen')&&st('CA'))add('California AI Transparency Act (SB 942, as amended by SB 1000)','Covered providers of public generative AI systems must offer disclosure and provenance tools. SB 1000, enacted on 30 September 2026, changed the scope, so re-check whether you are covered.','Amended 30 September 2026',['ca']);
+ if(w('front')&&A.role==='dev'){
+  if(st('CA')&&A.scale!=='small')add('California SB 53 (frontier AI)',A.scale==='big'?'You are likely a large frontier developer: a published safety framework, transparency reports and critical-incident reporting.':'You are likely a frontier developer under the revenue threshold, with lighter duties. Read the bill.','In effect since 1 January 2026',['ca']);
+  if(st('NY')&&A.scale!=='small')add('New York RAISE Act','Duties for large frontier developers, including 72-hour incident reporting. Penalties up to $1 million for a first violation.','Effective 1 January 2027',['ny']);
+ }
+ if(st('TX')&&A.role!=='int')add('Texas Responsible AI Governance Act (HB 149)','Bans specific harmful uses, such as intentionally discriminatory systems and manipulation that causes harm. Only the attorney general enforces it, with a 60-day cure period. For most private companies the duties are narrower than in Colorado.','In effect since 1 January 2026',['tx','txag']);
+ if(w('emp'))S.eeoc=1;
+ return {L:L,S:Object.keys(S)};
+}
+function result(){
+ var r=build(),h='<div class="prog"><i style="width:100%"></i></div><div class="res">',o=A.role==='int';
+ var cls=o?'Internal use only':(A.role==='dev'?'Developer':'Deployer');
+ var badge=r.L.length?'Rules to look at':'Few AI-specific rules';
+ h+='<span class="badge '+(r.L.length?'amber':'green')+'">'+badge+'</span><h2 style="margin-top:10px">Likely role: '+esc(cls)+'</h2>';
+ if(o)h+='<p>Purely internal productivity use with no decisions about people is mostly outside the state AI laws. Privacy, consumer-protection and employment rules still apply.</p>';
+ else if(!r.L.length){h+='<p>On your answers, none of the main state AI laws we track clearly applies. '+(st('OT')?'You selected other states only. Many have narrower AI laws, so check your state attorney general. ':'')+'Laws are changing quickly, so check again if your use changes.</p>'}
+ else {h+='<h3>State laws to look at first</h3><ul>'+r.L.map(function(x){return '<li><strong>'+esc(x.n)+'</strong>. '+esc(x.w)+' <em>'+esc(x.d)+'.</em></li>'}).join('')+'</ul>'}
+ var al=A.who&&A.who.indexOf('kid')>-1&&w('chat')?'<li>You serve children or teenagers with a chatbot, so look closely at age-assurance and minor-protection duties in every state where you have users.</li>':'';
+ var biz=A.who&&A.who.length===1&&A.who[0]==='biz'?'<li>You said only businesses are affected. Many of these laws protect consumers, workers and residents, so a business-only product may be less exposed. Confirm the definitions.</li>':'';
+ h+='<h3>Federal rules that apply anyway</h3><ul><li>There is no comprehensive federal AI law. Agencies apply existing laws: the Federal Trade Commission polices deceptive or unfair AI claims'+(w('emp')?', and the Equal Employment Opportunity Commission looks at discrimination in hiring tools':'')+'.</li><li>Executive Order 14365 (11 December 2025) set up a Justice Department task force aimed at state AI laws. It cannot cancel a state law by itself, so plan for state laws to apply.</li><li>The NIST AI Risk Management Framework is voluntary, but widely used as a benchmark.</li>'+al+biz+'</ul>';
+ h+='<h3>Read the official sources</h3><ul>'+r.S.map(function(k){return '<li><a href="'+SRC[k][1]+'" rel="noopener" target="_blank">'+esc(SRC[k][0])+'</a></li>'}).join('')+'</ul>';
+ h+='<div class="disc"><strong>Educational only, not legal advice.</strong> This tool is a simplified reading of US law as of November 2026. State laws change quickly and details such as scope and start dates depend on facts the questions cannot capture. Confirm against the sources above or ask a qualified lawyer before you act.</div><div class="row"><button type="button" id="rs">Start again</button><button type="button" id="bk">Back</button></div></div>';
+ card.innerHTML=h;
+ document.getElementById('rs').onclick=function(){A={};hist=[];cur='st';render()};
+ document.getElementById('bk').onclick=function(){cur=hist.pop();render()};
+}
+render();
+})();
+</script>

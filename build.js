@@ -345,6 +345,16 @@ for (const pg of readDir('pages')) {
   write('tools/eu-ai-act-checker/index.html', layout({ title, description, route, body, guides: posts }));
   urls.push(route);
 }
+
+{
+  const toolHtml = fs.readFileSync(path.join(__dirname, 'content', 'tools', 'us-ai-law-checker.html'), 'utf8');
+  const route = '/tools/us-ai-law-checker/';
+  const title = 'Which US AI Laws Apply to Me?';
+  const description = 'A free six-question check that shows which US state and federal AI laws to look at first, based on where your users are and what your AI does. Educational, not legal advice.';
+  const body = `<div class='page-hero'><div class='container'><h1>${esc(title)}</h1><p class='lead'>${esc(description)}</p></div></div>` + toolHtml;
+  write('tools/us-ai-law-checker/index.html', layout({ title, description, route, body, guides: posts }));
+  urls.push(route);
+}
 write('offline/index.html', layout({ title: 'You are offline', description: 'You are offline.', route: '/offline/', body: `<div class='page-hero'><div class='container'><h1>You are offline</h1><p class='lead'>This page is not saved on your device yet. Reconnect and try again, or open a guide you have already visited.</p><a class='btn btn-primary' href='/'>Back to home</a></div></div>`, guides: posts }));
 write('404.html', layout({ title: 'Page not found', description: 'Page not found', route: '/404', body: `<div class='page-hero'><div class='container'><h1>Page not found</h1><p class='lead'>That page does not exist. Try the guides instead.</p><a class='btn btn-primary' href='/'>Back to all guides</a></div></div>`, guides: posts }));
 

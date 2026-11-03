@@ -34,6 +34,8 @@ Most companies are not covered by these, because they only reach developers of t
 The Texas Responsible AI Governance Act (HB 149) took effect on 1 January 2026. It bans specific harmful uses, such as intentionally discriminatory systems and manipulation that causes harm, and is enforced only by the attorney general, with a 60-day cure period. Reported penalties go up to $200,000 per violation. For most private companies the duties are narrower than in Colorado.
 
 ## Which of these applies to you?
+Short on time? Try the [six-question US AI law checker](/tools/us-ai-law-checker/).
+
 1. **You use AI to screen, score or rank people** (hiring, lending, housing, insurance, health, education): look first at Colorado, Illinois, California and New York City.
 2. **You build your own large AI model:** check California SB 53 and the New York RAISE Act.
 3. **You offer a public chatbot or a content generator:** check California's transparency and chatbot laws, and the chatbot laws in Washington and Connecticut.
