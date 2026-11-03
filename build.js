@@ -170,6 +170,23 @@ svg{max-width:100%}
 .site-footer .team-strip a:hover{color:#fff;text-decoration:underline}
 .team-strip img,.team-strip .pi svg{width:14px;height:14px;display:block;border-radius:3px;flex:none}
 .team-strip .pi{display:inline-flex}
+.pay{margin:22px 0 8px;border:1px solid var(--line);border-radius:var(--radius);background:#fff;box-shadow:0 18px 50px -28px rgba(11,18,32,.45);overflow:hidden}
+.pay[hidden],.pay-load[hidden],.pay-done[hidden]{display:none}
+.pay-head{display:flex;align-items:center;gap:14px;padding:16px 20px;background:linear-gradient(135deg,#0b1220,#1e1b4b);color:#fff}
+.pay-head svg{width:36px;height:36px;flex:none}
+.pay-head strong{display:block;font-size:17px;line-height:1.3}
+.pay-head span{font-size:14px;color:#c7d2fe}
+.pay-body{padding:18px 20px;min-height:200px}
+.pay-load{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:36px 0;color:var(--muted);text-align:center}
+.pay-load p{margin:0;font-size:15px}
+.pay-mark svg{width:56px;height:56px;animation:actai-pulse 1.4s ease-in-out infinite}
+.pay-mark{position:relative}
+.pay-mark:after{content:'';position:absolute;inset:-10px;border-radius:50%;border:2px solid rgba(79,70,229,.35);animation:actai-ring 1.4s ease-out infinite}
+@keyframes actai-pulse{0%,100%{transform:scale(.92)}50%{transform:scale(1.06)}}
+@keyframes actai-ring{0%{transform:scale(.7);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+@media (prefers-reduced-motion:reduce){.pay-mark svg,.pay-mark:after{animation:none}}
+.pay-done{padding:18px 0;text-align:center}
+.pay .fine{padding:0 20px 16px;margin:0}
 .fine{font-size:14px;color:var(--muted);margin:10px 0 0}
 .page-hero{background:linear-gradient(180deg,#f6f7fb,#fff);border-bottom:1px solid var(--line)}
 .page-hero .container{max-width:820px;padding-top:44px;padding-bottom:36px}
@@ -365,9 +382,38 @@ for (const pg of readDir('pages')) {
   const title = 'AI Regulation Tracker';
   const description = 'A plain-English monthly briefing on what changed in AI law across the EU, US, UK, Canada and China, with dates and official sources.';
   const buy = TRACKER_LIVE
-    ? `<button class='btn btn-primary' id='buy' type='button'>Subscribe for ${esc(PADDLE.priceLabel)} ${esc(PADDLE.billingNote)}</button><p class='fine'>Taxes added at checkout where they apply. Payments are handled by Paddle, our Merchant of Record. See the <a href='/refund-policy/'>30-day refund policy</a>, <a href='/terms/'>terms</a> and <a href='/privacy/'>privacy policy</a>.</p>
+    ? `<button class='btn btn-primary' id='buy' type='button'>Subscribe for ${esc(PADDLE.priceLabel)} ${esc(PADDLE.billingNote)}</button>
+<div class='pay' id='pay' hidden>
+<div class='pay-head'>${MARK}<div><strong>AI Regulation Tracker</strong><span>${esc(PADDLE.priceLabel)} ${esc(PADDLE.billingNote)}</span></div></div>
+<div class='pay-body'>
+<div class='pay-load' id='payload'><div class='pay-mark'>${MARK}</div><p>Preparing your secure checkout&hellip;</p></div>
+<div id='checkout'></div>
+<div class='pay-done' id='paydone' hidden><h3>Thank you, you are subscribed</h3><p>Paddle is emailing your receipt now. Your monthly briefing will be sent to the email address you used at checkout. Questions? Write to isaac@actaicompliance.com.</p></div>
+</div>
+<p class='fine'>Secure payment by Paddle, our Merchant of Record. Taxes added where they apply. See the <a href='/refund-policy/'>30-day refund policy</a>, <a href='/terms/'>terms</a> and <a href='/privacy/'>privacy policy</a>.</p>
+</div>
 <script src='https://cdn.paddle.com/paddle/v2/paddle.js'></script>
-<script>(function(){try{${PADDLE.environment === 'sandbox' ? "Paddle.Environment.set('sandbox');" : ''}Paddle.Initialize({token:${JSON.stringify(PADDLE.clientToken)}});document.getElementById('buy').addEventListener('click',function(){Paddle.Checkout.open({items:[{priceId:${JSON.stringify(PADDLE.priceId)},quantity:1}]})})}catch(e){}})();</script>`
+<script>(function(){
+var pay=document.getElementById('pay'),load=document.getElementById('payload'),done=document.getElementById('paydone'),box=document.getElementById('checkout'),btn=document.getElementById('buy'),ready=false,timer;
+function fail(){load.innerHTML='<p>The checkout could not load. Please refresh the page, or email isaac@actaicompliance.com and we will help.</p>';}
+try{
+${PADDLE.environment === 'sandbox' ? "Paddle.Environment.set('sandbox');" : ''}
+Paddle.Initialize({token:${JSON.stringify(PADDLE.clientToken)},eventCallback:function(e){
+ if(!e||!e.name)return;
+ if(e.name==='checkout.loaded'){ready=true;clearTimeout(timer);load.hidden=true;}
+ if(e.name==='checkout.completed'){box.hidden=true;done.hidden=false;pay.scrollIntoView({behavior:'smooth',block:'start'});}
+ if(e.name==='checkout.error'){fail();}
+}});
+}catch(err){}
+btn.addEventListener('click',function(){
+ pay.hidden=false;btn.hidden=true;load.hidden=false;
+ pay.scrollIntoView({behavior:'smooth',block:'start'});
+ timer=setTimeout(function(){if(!ready)fail();},15000);
+ try{
+  Paddle.Checkout.open({settings:{displayMode:'inline',variant:'one-page',frameTarget:'checkout',frameInitialHeight:'480',frameStyle:'width:100%;min-width:312px;background-color:transparent;border:none;',theme:'light'},items:[{priceId:${JSON.stringify(PADDLE.priceId)},quantity:1}]});
+ }catch(err){fail();}
+});
+})();</script>`
     : `<p class='fine'>Not open for subscriptions yet.</p>`;
   const inner = `<div class='page-hero'><div class='container'><h1>${esc(title)}</h1><p class='lead'>${esc(description)}</p></div></div><article class='prose'>
 <h2>What you get</h2>
