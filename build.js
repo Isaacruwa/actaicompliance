@@ -171,7 +171,7 @@ svg{max-width:100%}
 .team-strip img,.team-strip .pi svg{width:14px;height:14px;display:block;border-radius:3px;flex:none}
 .team-strip .pi{display:inline-flex}
 .pay{margin:22px 0 8px;border:1px solid var(--line);border-radius:var(--radius);background:#fff;box-shadow:0 18px 50px -28px rgba(11,18,32,.45);overflow:hidden}
-.pay[hidden],.pay-load[hidden],.pay-done[hidden]{display:none}
+.pay[hidden],.pay-load[hidden],.pay-done[hidden],.btn[hidden]{display:none}
 .pay-head{display:flex;align-items:center;gap:14px;padding:16px 20px;background:linear-gradient(135deg,#0b1220,#1e1b4b);color:#fff}
 .pay-head svg{width:36px;height:36px;flex:none}
 .pay-head strong{display:block;font-size:17px;line-height:1.3}
@@ -387,14 +387,14 @@ for (const pg of readDir('pages')) {
 <div class='pay-head'>${MARK}<div><strong>AI Regulation Tracker</strong><span>${esc(PADDLE.priceLabel)} ${esc(PADDLE.billingNote)}</span></div></div>
 <div class='pay-body'>
 <div class='pay-load' id='payload'><div class='pay-mark'>${MARK}</div><p>Preparing your secure checkout&hellip;</p></div>
-<div id='checkout'></div>
+<div class='checkout-container'></div>
 <div class='pay-done' id='paydone' hidden><h3>Thank you, you are subscribed</h3><p>Paddle is emailing your receipt now. Your monthly briefing will be sent to the email address you used at checkout. Questions? Write to isaac@actaicompliance.com.</p></div>
 </div>
 <p class='fine'>Secure payment by Paddle, our Merchant of Record. Taxes added where they apply. See the <a href='/refund-policy/'>30-day refund policy</a>, <a href='/terms/'>terms</a> and <a href='/privacy/'>privacy policy</a>.</p>
 </div>
 <script src='https://cdn.paddle.com/paddle/v2/paddle.js'></script>
 <script>(function(){
-var pay=document.getElementById('pay'),load=document.getElementById('payload'),done=document.getElementById('paydone'),box=document.getElementById('checkout'),btn=document.getElementById('buy'),ready=false,timer;
+var pay=document.getElementById('pay'),load=document.getElementById('payload'),done=document.getElementById('paydone'),box=document.querySelector('.checkout-container'),btn=document.getElementById('buy'),ready=false,timer;
 function fail(){load.innerHTML='<p>The checkout could not load. Please refresh the page, or email isaac@actaicompliance.com and we will help.</p>';}
 try{
 ${PADDLE.environment === 'sandbox' ? "Paddle.Environment.set('sandbox');" : ''}
@@ -410,7 +410,7 @@ btn.addEventListener('click',function(){
  pay.scrollIntoView({behavior:'smooth',block:'start'});
  timer=setTimeout(function(){if(!ready)fail();},15000);
  try{
-  Paddle.Checkout.open({settings:{displayMode:'inline',variant:'one-page',frameTarget:'checkout',frameInitialHeight:'480',frameStyle:'width:100%;min-width:312px;background-color:transparent;border:none;',theme:'light'},items:[{priceId:${JSON.stringify(PADDLE.priceId)},quantity:1}]});
+  Paddle.Checkout.open({settings:{displayMode:'inline',variant:'one-page',frameTarget:'checkout-container',frameInitialHeight:'480',frameStyle:'width:100%;min-width:312px;background-color:transparent;border:none;',theme:'light'},items:[{priceId:${JSON.stringify(PADDLE.priceId)},quantity:1}]});
  }catch(err){fail();}
 });
 })();</script>`
