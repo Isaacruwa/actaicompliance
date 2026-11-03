@@ -3,7 +3,7 @@ title: EU AI Act conformity assessment: how it works
 slug: eu-ai-act-conformity-assessment
 region: European Union
 date: 2026-10-11
-updated: 2026-10-11
+updated: 2026-11-03
 eu: true
 description: What a conformity assessment is under the EU AI Act, the two routes (self-assessment or notified body), and the steps after it.
 ---
@@ -43,3 +43,23 @@ After the 2026 AI Omnibus, high-risk obligations apply from **2 December 2027** 
 - Test and validation records, dated and signed
 
 Not sure whether you are high-risk at all? Start with [Is my AI system high-risk?](/guides/is-my-ai-system-high-risk/) The official text is on EUR-Lex.
+
+## Frequently asked questions
+
+### What are the conformity assessment routes under the EU AI Act?
+There are two. Internal control (Annex VI) means the provider checks its own quality management system, technical documentation and system design, and records the result. Assessment with a notified body (Annex VII) means an independent organisation designated by a national authority reviews the quality management system and technical documentation, and can test the system.
+
+### Do I need a notified body?
+Most Annex III systems, such as hiring, education, credit and essential services, use internal control, so no notified body is needed. Biometric systems can use internal control only if the provider has applied the relevant harmonised standards in full. Otherwise a notified body is needed. AI built into regulated products follows the conformity procedure of that product law. Confirm your case against Article 43 in the official text.
+
+### Who carries out the conformity assessment?
+The provider. Deployers, the organisations that use the system, do not carry it out.
+
+### What happens after the conformity assessment?
+You issue an EU declaration of conformity (Article 47), apply the CE marking (Article 48) and register the system in the EU database (Article 49) before it is placed on the market or put into service.
+
+### Where can I find notified bodies?
+The Commission's NANDO database lists notified bodies designated by EU member states.
+
+### Do I have to repeat the assessment if I change the system?
+A new assessment is needed after a substantial modification. Changes you planned in advance and recorded in the [technical documentation](/guides/eu-ai-act-annex-iv-technical-documentation/) do not count as substantial, which is why recording planned changes matters.

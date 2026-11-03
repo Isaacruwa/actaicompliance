@@ -3,7 +3,7 @@ title: Canada AI regulation: what applies now
 slug: canada-ai-regulation
 region: Canada
 date: 2026-10-11
-updated: 2026-10-11
+updated: 2026-11-03
 description: Canada has no federal AI statute in force. Here are the privacy, provincial and public-sector rules that already apply to AI.
 ---
 Canada's proposed federal AI law, the Artificial Intelligence and Data Act (AIDA), did not become law. It was part of Bill C-27, which died when Parliament was prorogued in January 2025. As far as we know, there is still no federal AI-specific statute in force, but several existing rules apply to AI.
@@ -32,3 +32,20 @@ The federal government has said it wants to take a different approach to AI poli
 4. If you also serve EU customers, check the EU AI Act, because Canadian companies can fall under it.
 
 Official sources: the Office of the Privacy Commissioner of Canada and the Treasury Board Secretariat.
+
+## Frequently asked questions
+
+### Does Canada have an AI law?
+As far as we know, there is no federal AI-specific statute in force. The proposed Artificial Intelligence and Data Act (AIDA) was part of Bill C-27, which died when Parliament was prorogued in January 2025.
+
+### What is Canada's AI policy?
+There is no single AI law, so policy is made up of existing rules and voluntary measures. Privacy law (PIPEDA and provincial laws such as Quebec Law 25) is the main constraint. The federal Directive on Automated Decision-Making covers government use, and a voluntary code of conduct for advanced generative AI was introduced in 2023. The federal government has said it wants a different approach from AIDA, but timing and form are uncertain.
+
+### Which laws apply to AI in Canada?
+Privacy law, human rights law, consumer protection law and sector rules for areas such as financial services and health all apply to AI-driven decisions. Quebec Law 25 adds transparency duties when a decision is made exclusively by automated processing.
+
+### Does the EU AI Act apply to Canadian companies?
+It can. If your AI system is placed on the EU market or its output is used in the EU, the Act can apply to you even though you are based in Canada. See the [EU AI Act guide](/guides/eu-ai-act-explained/).
+
+### What should a Canadian business do first?
+Treat privacy compliance as your core AI compliance task, check Quebec Law 25 if you serve Quebec, and document your AI systems and decision logic so you can explain outcomes.

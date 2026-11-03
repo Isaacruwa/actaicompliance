@@ -3,7 +3,7 @@ title: US AI regulation: federal rules, state laws and what to watch
 slug: us-ai-regulation
 region: United States
 date: 2026-10-11
-updated: 2026-10-11
+updated: 2026-11-03
 description: The US has no single federal AI law. This guide covers the federal picture, the state patchwork, and practical steps for companies operating across states.
 ---
 The United States does not have one comprehensive AI law. Instead, companies face a mix of federal agency enforcement, executive actions that change with administrations, and a growing, fast-moving set of state laws.
@@ -32,3 +32,20 @@ Across states and agencies, the areas that draw the most attention are consequen
 5. Set a reminder to re-check state laws every quarter, since they are changing fast.
 
 Official sources: your state attorney general pages, the FTC website and NIST.
+
+## Frequently asked questions
+
+### Is there a federal AI law in the US?
+No. Congress has not passed a comprehensive AI statute. Federal agencies apply existing laws: the FTC polices deceptive or unfair AI claims, the EEOC looks at discrimination in hiring tools, and financial regulators look at fair lending.
+
+### What AI regulations apply in the US?
+Mostly state laws and existing federal laws. State examples include Colorado's replacement automated decision-making law (reported to take effect on 1 January 2027), California's AI and privacy-agency rules, the Texas Responsible AI Governance Act (in force since 1 January 2026) and New York City Local Law 144 on automated hiring tools. See the [state-by-state guide](/guides/us-state-ai-laws/) for dates and who is covered.
+
+### Which US state has an AI law?
+Several. Colorado, California, Texas, Illinois and New York have passed AI-related laws, and the list keeps growing. Because state law follows your users, map where your customers are.
+
+### What is the NIST AI Risk Management Framework?
+A voluntary framework from the US National Institute of Standards and Technology. It is not law, but it is widely used as a practical benchmark and a sensible starting point for internal AI governance.
+
+### Which AI uses face the most scrutiny in the US?
+Consequential decisions about people: employment, lending, housing, insurance, healthcare and education.

@@ -3,7 +3,7 @@ title: EU AI Act Annex IV technical documentation: what to include
 slug: eu-ai-act-annex-iv-technical-documentation
 region: European Union
 date: 2026-10-11
-updated: 2026-10-11
+updated: 2026-11-03
 eu: true
 description: A plain-English checklist of what Annex IV technical documentation must contain for high-risk AI systems, who needs it, and when it applies.
 ---
@@ -44,3 +44,20 @@ Providers must keep the technical documentation available to the authorities for
 Systems built from AI agents generate a lot of operational data: traces, tool calls and logs. These are useful raw evidence for the monitoring, testing and change sections, but traces on their own are not technical documentation. They still need to be organised against the Annex IV headings and reviewed by a person.
 
 Always check the official text on EUR-Lex for the exact wording of Annex IV. Next, read how [the conformity assessment](/guides/eu-ai-act-conformity-assessment/) uses this documentation.
+
+## Frequently asked questions
+
+### What is Article 11 technical documentation under the EU AI Act?
+Article 11 requires the provider of a high-risk AI system to prepare technical documentation before the system is placed on the market or put into service, and to keep it up to date. Annex IV sets out what the documentation must contain. Its purpose is to show that the system meets the high-risk requirements and to give regulators the information they need to assess it.
+
+### What are the EU AI Act documentation requirements in short?
+Annex IV has nine parts: a general description of the system, a detailed description of its elements and development process, information on monitoring, functioning and control, the reasons your performance metrics are appropriate, the risk management system, changes over the lifecycle, the standards applied, the EU declaration of conformity, and the post-market monitoring plan. The documentation must be available to the authorities for 10 years.
+
+### Who needs Annex IV technical documentation?
+Providers of high-risk AI systems, meaning the organisations that develop a system, or have one developed, and place it on the market under their own name. Deployers have different duties. Providers of general-purpose AI models have their own separate documentation duties.
+
+### When do the technical documentation requirements apply?
+After the 2026 AI Omnibus, the high-risk rules apply from 2 December 2027 for stand-alone Annex III systems and from 2 August 2028 for AI built into products covered by EU product-safety law. You need the documentation ready before the system goes on the market, not on the deadline.
+
+### Is technical documentation the same as a conformity assessment?
+No. The technical documentation is the evidence. The [conformity assessment](/guides/eu-ai-act-conformity-assessment/) is the procedure in which that evidence, and your quality management system, is checked before you issue the declaration of conformity and apply the CE marking.

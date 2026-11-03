@@ -3,7 +3,7 @@ title: The EU AI Act explained in plain English
 slug: eu-ai-act-explained
 region: European Union
 date: 2026-10-11
-updated: 2026-10-11
+updated: 2026-11-03
 eu: true
 description: What the EU AI Act is, who it applies to, how the risk tiers work, and which deadlines changed after the 2026 AI Omnibus.
 ---
@@ -58,3 +58,23 @@ Under the original text, fines can reach 35 million euros or 7% of worldwide ann
 - [Conformity assessment: how it works](/guides/eu-ai-act-conformity-assessment/)
 
 Good starting points are the official text on EUR-Lex and the European Commission pages on the AI Act.
+
+## Frequently asked questions
+
+### What is the EU AI Act?
+Regulation (EU) 2024/1689 is the first broad, binding law for artificial intelligence. It entered into force on 1 August 2024 and applies in stages. It sorts AI into risk tiers and sets duties for providers and deployers.
+
+### Who does the EU AI Act apply to?
+Providers that place AI systems on the EU market, deployers located in the EU, and in some cases providers and deployers outside the EU whose AI output is used in the EU. Not sure about your case? Try the [EU AI Act checker](/tools/eu-ai-act-checker/).
+
+### When does the EU AI Act apply?
+In stages. The bans on prohibited practices have applied since 2 February 2025, and the rules for general-purpose AI models since 2 August 2025. Transparency duties under Article 50 start on 2 August 2026, with a grace period to 2 December 2026 for machine-readable marking of systems already on the market. After the 2026 AI Omnibus, high-risk rules apply from 2 December 2027 for Annex III systems and from 2 August 2028 for AI built into regulated products.
+
+### What are the penalties under the EU AI Act?
+Fines for banned practices go up to €35 million or 7% of worldwide annual turnover, whichever is higher. Lower caps apply to other breaches.
+
+### Does the EU AI Act apply to US, UK or Canadian companies?
+It can, if your AI system is placed on the EU market or its output is used in the EU. See the [UK](/guides/uk-ai-regulation/), [US](/guides/us-ai-regulation/) and [Canada](/guides/canada-ai-regulation/) guides.
+
+### What should I read next?
+Start with [Is my AI system high-risk?](/guides/is-my-ai-system-high-risk/), then the [conformity assessment](/guides/eu-ai-act-conformity-assessment/) and [technical documentation](/guides/eu-ai-act-annex-iv-technical-documentation/) guides.
