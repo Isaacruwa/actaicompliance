@@ -367,7 +367,7 @@ for (const pg of readDir('pages')) {
   const buy = TRACKER_LIVE
     ? `<button class='btn btn-primary' id='buy' type='button'>Subscribe for ${esc(PADDLE.priceLabel)} ${esc(PADDLE.billingNote)}</button><p class='fine'>Taxes added at checkout where they apply. Payments are handled by Paddle, our Merchant of Record. See the <a href='/refund-policy/'>30-day refund policy</a>, <a href='/terms/'>terms</a> and <a href='/privacy/'>privacy policy</a>.</p>
 <script src='https://cdn.paddle.com/paddle/v2/paddle.js'></script>
-<script>(function(){try{Paddle.Environment.set(${JSON.stringify(PADDLE.environment)});Paddle.Initialize({token:${JSON.stringify(PADDLE.clientToken)}});document.getElementById('buy').addEventListener('click',function(){Paddle.Checkout.open({items:[{priceId:${JSON.stringify(PADDLE.priceId)},quantity:1}]})})}catch(e){}})();</script>`
+<script>(function(){try{${PADDLE.environment === 'sandbox' ? "Paddle.Environment.set('sandbox');" : ''}Paddle.Initialize({token:${JSON.stringify(PADDLE.clientToken)}});document.getElementById('buy').addEventListener('click',function(){Paddle.Checkout.open({items:[{priceId:${JSON.stringify(PADDLE.priceId)},quantity:1}]})})}catch(e){}})();</script>`
     : `<p class='fine'>Not open for subscriptions yet.</p>`;
   const inner = `<div class='page-hero'><div class='container'><h1>${esc(title)}</h1><p class='lead'>${esc(description)}</p></div></div><article class='prose'>
 <h2>What you get</h2>
