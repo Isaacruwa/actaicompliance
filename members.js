@@ -1,3 +1,4 @@
+import { WELCOME_SUBJECT, WELCOME_BODY } from './welcome.js';
 // Subscriber storage (Paddle webhooks), password-protected admin page and briefing sending (Resend).
 // Secure by default: every admin route returns 503 until ADMIN_PASSWORD (12+ chars) and the DB binding are configured.
 
@@ -57,6 +58,9 @@ async function handlePaddleWebhook(request, env) {
         .bind(d.id, d.customer_id || '', d.status || '', d.started_at || d.created_at || null, d.canceled_at || null, d.next_billed_at || null, now).run();
     }
   }
+  let welcomed = true;
+  try { welcomed = await maybeWelcome(env, type.startsWith('customer.') ? d.id : (type.startsWith('subscription.') ? d.customer_id : '')); } catch { welcomed = false; }
+  if (!welcomed) return new Response('Welcome email failed, retry', { status: 500 });
   await env.DB.prepare('INSERT OR IGNORE INTO events (id, type, at) VALUES (?, ?, ?)').bind(id, type, now).run();
   return new Response('OK', { status: 200 });
 }
@@ -177,6 +181,23 @@ async function sendBriefing(env, subject, bodyText, recipients) {
     if (!ok) failed += chunk.length;
   }
   return failed;
+}
+
+/* ---------- automatic first briefing ---------- */
+async function maybeWelcome(env, customerId) {
+  if (!customerId || !env.RESEND_API_KEY) return true;
+  const row = await env.DB.prepare("SELECT c.email AS email FROM customers c WHERE c.id = ?1 AND c.email != '' AND EXISTS (SELECT 1 FROM subscriptions s WHERE s.customer_id = c.id AND s.status IN ('active','trialing')) AND c.email NOT IN (SELECT email FROM unsubscribed) AND c.email NOT IN (SELECT email FROM welcomed)").bind(customerId).first();
+  if (!row) return true;
+  const claim = await env.DB.prepare('INSERT OR IGNORE INTO welcomed (email, at) VALUES (?, ?)').bind(row.email, new Date().toISOString()).run();
+  if (!claim.meta || !claim.meta.changes) return true;
+  let failed = 1;
+  try { failed = await sendBriefing(env, WELCOME_SUBJECT, WELCOME_BODY, [row.email]); } catch { failed = 1; }
+  if (failed) {
+    await env.DB.prepare('DELETE FROM welcomed WHERE email = ?').bind(row.email).run();
+    return false;
+  }
+  await env.DB.prepare('INSERT INTO sends (subject, recipients, failed, test, at) VALUES (?, 1, 0, 2, ?)').bind(WELCOME_SUBJECT, new Date().toISOString()).run();
+  return true;
 }
 
 /* ---------- data ---------- */
