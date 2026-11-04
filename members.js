@@ -1,5 +1,5 @@
-// Subscriber storage (Paddle webhooks), admin page (behind Cloudflare Access) and briefing sending (Resend).
-// Secure by default: every admin route returns 503 until ACCESS_TEAM_DOMAIN and ACCESS_AUD are configured.
+// Subscriber storage (Paddle webhooks), password-protected admin page and briefing sending (Resend).
+// Secure by default: every admin route returns 503 until ADMIN_PASSWORD (12+ chars) and the DB binding are configured.
 
 const NO_STORE = { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' };
 const SITE = 'https://actaicompliance.com';
@@ -96,16 +96,31 @@ export async function verifyAccessJwt(token, env, nowSec = Math.floor(Date.now()
   if (!payload.email) return null;
   return payload;
 }
+const ADMIN_EMAIL_DEFAULT = 'isaac@actaicompliance.com';
+const SESSION_SECONDS = 8 * 3600;
+function getCookie(request, name) {
+  const m = (request.headers.get('Cookie') || '').split(/;\s*/).find((c) => c.startsWith(name + '='));
+  return m ? m.slice(name.length + 1) : '';
+}
+async function makeSession(env) {
+  const exp = String(Math.floor(Date.now() / 1000) + SESSION_SECONDS);
+  return exp + '.' + (await hmacHex('session:' + env.ADMIN_PASSWORD, exp));
+}
+async function sessionValid(request, env) {
+  const v = getCookie(request, 'actai_admin');
+  const i = v.indexOf('.');
+  if (i < 1) return false;
+  const exp = v.slice(0, i);
+  if (!/^\d+$/.test(exp) || Number(exp) < Date.now() / 1000) return false;
+  return safeEqual(await hmacHex('session:' + env.ADMIN_PASSWORD, exp), v.slice(i + 1));
+}
+function loginPage(msg) {
+  return html('<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Admin login</title><body style="font:16px system-ui;max-width:360px;margin:15vh auto;padding:0 20px"><h1 style="font-size:22px">ActAI admin</h1>' + (msg ? '<p style="color:#b00020">' + msg + '</p>' : '') + '<form method="post" action="/admin/login"><input type="password" name="password" placeholder="Password" autofocus required style="width:100%;padding:10px;font-size:16px;box-sizing:border-box"><button style="margin-top:12px;padding:10px 18px;font-size:16px">Log in</button></form></body>', msg ? 401 : 200);
+}
 async function requireAdmin(request, env) {
-  if (!env.ACCESS_TEAM_DOMAIN || !env.ACCESS_AUD || !env.DB) return { error: html('<h1>Admin is not configured yet</h1>', 503) };
-  try {
-    const user = await verifyAccessJwt(request.headers.get('Cf-Access-Jwt-Assertion'), env);
-    if (!user) return { error: html('<h1>Forbidden</h1>', 403) };
-    if (env.ADMIN_EMAIL && user.email.toLowerCase() !== env.ADMIN_EMAIL.toLowerCase()) return { error: html('<h1>Forbidden</h1>', 403) };
-    return { user };
-  } catch {
-    return { error: html('<h1>Forbidden</h1>', 403) };
-  }
+  if (!env.ADMIN_PASSWORD || env.ADMIN_PASSWORD.length < 12 || !env.DB) return { error: html('<h1>Admin is not configured yet</h1>', 503) };
+  if (!(await sessionValid(request, env))) return { login: true };
+  return { user: { email: env.ADMIN_EMAIL || ADMIN_EMAIL_DEFAULT } };
 }
 
 /* ---------- email content ---------- */
@@ -261,6 +276,20 @@ export async function handleMembers(request, env, url) {
   if (p === '/admin' || p.startsWith('/admin/')) {
     const auth = await requireAdmin(request, env);
     if (auth.error) return auth.error;
+    if (p === '/admin/login' && request.method === 'POST') {
+      if (!env.ADMIN_PASSWORD || env.ADMIN_PASSWORD.length < 12) return html('<h1>Admin is not configured yet</h1>', 503);
+      const origin = request.headers.get('Origin');
+      if (origin && origin !== url.origin) return html('<h1>Forbidden</h1>', 403);
+      let pw = '';
+      try { pw = String((await request.formData()).get('password') || ''); } catch {}
+      if (!safeEqual(await hmacHex('login', pw), await hmacHex('login', env.ADMIN_PASSWORD))) {
+        await new Promise((r) => setTimeout(r, 1500));
+        return loginPage('Wrong password.');
+      }
+      return new Response(null, { status: 303, headers: { Location: '/admin', 'Set-Cookie': 'actai_admin=' + (await makeSession(env)) + '; HttpOnly; Secure; SameSite=Strict; Path=/admin; Max-Age=' + SESSION_SECONDS, 'Cache-Control': 'no-store' } });
+    }
+    if (p === '/admin/logout') return new Response(null, { status: 303, headers: { Location: '/admin', 'Set-Cookie': 'actai_admin=; HttpOnly; Secure; SameSite=Strict; Path=/admin; Max-Age=0' } });
+    if (auth.login) return p === '/admin' && request.method === 'GET' ? loginPage('') : json({ error: 'Not logged in' }, 401);
     if (p === '/admin' && request.method === 'GET') return html(ADMIN_PAGE);
     if (p === '/admin/api/data' && request.method === 'GET') return json(await loadData(env));
     if (p === '/admin/api/send' && request.method === 'POST') {
