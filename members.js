@@ -247,6 +247,7 @@ button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:11px 18p
 <input id="subj" placeholder="Subject, e.g. AI Regulation Tracker, November 2026">
 <textarea id="body" placeholder="Write your briefing here..."></textarea>
 <button id="test" class="alt">Send a test to me</button><button id="send">Send to all active subscribers</button>
+<button id="welcometest" class="alt" style="margin-top:8px">Send me the welcome email (test)</button>
 <div id="msg"></div></section>
 <section><h2>Subscribers</h2><div class="scroll"><table><thead><tr><th>Email</th><th>Status</th><th>Started</th><th>Next payment</th></tr></thead><tbody id="subs"></tbody></table></div></section>
 <section><h2>Briefings sent</h2><div class="scroll"><table><thead><tr><th>When</th><th>Subject</th><th>Sent to</th><th>Failed</th><th>Type</th></tr></thead><tbody id="sends"></tbody></table></div></section>
@@ -276,6 +277,7 @@ function send(test){
 }
 document.getElementById('test').onclick=function(){send(true)};
 document.getElementById('send').onclick=function(){send(false)};
+document.getElementById('welcometest').onclick=function(){var m=document.getElementById('msg');m.textContent='Sending...';fetch('/admin/api/send',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({welcome:true})}).then(function(r){return r.json()}).then(function(j){m.textContent=j.error?('Error: '+j.error):'Welcome email sent to you.';load()}).catch(function(){m.textContent='Something went wrong.'})};
 load();
 </script></body></html>`;
 
@@ -319,6 +321,12 @@ export async function handleMembers(request, env, url) {
       if (!env.RESEND_API_KEY) return json({ error: 'Email sending is not set up yet (missing RESEND_API_KEY).' }, 503);
       let b;
       try { b = await request.json(); } catch { return json({ error: 'Bad request' }, 400); }
+      if (b.welcome) {
+        const to = auth.user.email.toLowerCase();
+        const failedW = await sendBriefing(env, '[TEST] ' + WELCOME_SUBJECT, WELCOME_BODY, [to]);
+        await env.DB.prepare('INSERT INTO sends (subject, recipients, failed, test, at) VALUES (?, 1, ?, 1, ?)').bind(WELCOME_SUBJECT, failedW, new Date().toISOString()).run();
+        return failedW ? json({ error: 'Sending failed. Check the Resend key and domain.' }, 502) : json({ sent: 1, failed: 0 });
+      }
       const subject = String(b.subject || '').trim().slice(0, 200), body = String(b.body || '').trim();
       if (!subject || !body) return json({ error: 'Subject and message are required.' }, 400);
       const recipients = b.test ? [auth.user.email.toLowerCase()] : await activeEmails(env);
