@@ -61,9 +61,3 @@ After the 2026 AI Omnibus, the high-risk rules apply from 2 December 2027 for st
 
 ### Is technical documentation the same as a conformity assessment?
 No. The technical documentation is the evidence. The [conformity assessment](/guides/eu-ai-act-conformity-assessment/) is the procedure in which that evidence, and your quality management system, is checked before you issue the declaration of conformity and apply the CE marking.
-
-## Related guides from Attestly
-Attestly (our product) publishes practical guides on the same topic:
-- [Annex IV explained: every required section](https://www.attestly.online/guides/eu-ai-act-annex-iv-explained?utm_source=actaicompliance)
-- [Annex IV technical documentation template](https://www.attestly.online/guides/annex-iv-template?utm_source=actaicompliance)
-- [Glossary: Annex IV technical documentation](https://www.attestly.online/glossary/annex-iv-technical-documentation?utm_source=actaicompliance)
