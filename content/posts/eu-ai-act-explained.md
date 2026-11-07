@@ -78,9 +78,3 @@ It can, if your AI system is placed on the EU market or its output is used in th
 
 ### What should I read next?
 Start with [Is my AI system high-risk?](/guides/is-my-ai-system-high-risk/), then the [conformity assessment](/guides/eu-ai-act-conformity-assessment/) and [technical documentation](/guides/eu-ai-act-annex-iv-technical-documentation/) guides.
-
-## Related guides from Attestly
-Attestly (our product) publishes practical guides on the same topic:
-- [EU AI Act guides](https://www.attestly.online/guides?utm_source=actaicompliance)
-- [Article 12 logging requirements for AI agents](https://www.attestly.online/guides/eu-ai-act-article-12-logging?utm_source=actaicompliance)
-- [Post-market monitoring under Article 72](https://www.attestly.online/guides/ai-act-article-72-monitoring?utm_source=actaicompliance)
