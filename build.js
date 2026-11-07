@@ -4,7 +4,7 @@ const zlib = require('zlib');
 const crypto = require('crypto');
 
 const SITE = { name: 'ActAI Compliance', url: 'https://actaicompliance.com', tagline: 'AI regulation, made clear' };
-const ATTESTLY = 'https://attestly.online/?utm_source=actaicompliance';
+const ATTESTLY = 'https://www.attestly.online/?utm_source=actaicompliance';
 const DIST = path.join(__dirname, 'dist');
 const FLAGS = { 'European Union': '🇪🇺', 'United Kingdom': '🇬🇧', 'United States': '🇺🇸', 'Canada': '🇨🇦', 'China': '🇨🇳', 'Global overview': '🌍' };
 const ORDER = ['eu-ai-act-explained', 'us-ai-regulation', 'us-state-ai-laws', 'uk-ai-regulation', 'canada-ai-regulation', 'china-ai-regulation', 'which-ai-laws-apply-to-you'];
