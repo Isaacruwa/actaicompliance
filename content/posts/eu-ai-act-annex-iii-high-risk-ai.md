@@ -41,3 +41,9 @@ If you rely on this exception, you must document your assessment and still **reg
 4. If it is high-risk, plan for [the conformity assessment](/guides/eu-ai-act-conformity-assessment/) and your [technical documentation](/guides/eu-ai-act-annex-iv-technical-documentation/).
 
 For a step-by-step version, see [Is my AI system high-risk?](/guides/is-my-ai-system-high-risk/) The official text is on EUR-Lex.
+
+## Related guides from Attestly
+Attestly (our product) publishes practical guides on the same topic:
+- [High-risk AI systems under Annex III: classification examples](https://www.attestly.online/guides/high-risk-ai-examples?utm_source=actaicompliance)
+- [Glossary: Annex III high-risk domains](https://www.attestly.online/glossary/annex-iii-high-risk-domains?utm_source=actaicompliance)
+- [Free EU AI Act risk checker](https://www.attestly.online/eu-ai-act-risk-checker?utm_source=actaicompliance)
