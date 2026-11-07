@@ -60,3 +60,9 @@ Penalties are set in Article 99. Breaking the bans in Article 5 can lead to fine
 The AI Act has more rules than these. If you are not sure whether the Act applies to you at all, start with [the EU AI Act explained](/guides/eu-ai-act-explained/) or [which AI laws apply to you](/guides/which-ai-laws-apply-to-you/). For the high-risk rules that now start in December 2027, see [Annex III: the high-risk AI use cases](/guides/eu-ai-act-annex-iii-high-risk-ai/).
 
 The binding text is on EUR-Lex: [the AI Act](https://eur-lex.europa.eu/eli/reg/2024/1689/oj) and [the Omnibus Regulation 2026/1744](https://eur-lex.europa.eu/eli/reg/2026/1744/oj). Check it, or ask a qualified lawyer, before you rely on any date in this guide.
+
+## Related guides from Attestly
+Attestly (our product) publishes practical guides on the same topic:
+- [Glossary: high-risk AI system](https://www.attestly.online/glossary/high-risk-ai-system?utm_source=actaicompliance)
+- [High-risk AI systems under Annex III: classification examples](https://www.attestly.online/guides/high-risk-ai-examples?utm_source=actaicompliance)
+- [Free EU AI Act risk checker](https://www.attestly.online/eu-ai-act-risk-checker?utm_source=actaicompliance)
