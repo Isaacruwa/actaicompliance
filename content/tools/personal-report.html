@@ -1,0 +1,163 @@
+<style>
+.chk{max-width:760px;margin:0 auto;padding:32px 20px 24px}
+.chk .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:0 10px 30px -18px rgba(11,18,32,.35)}
+.chk .prog{height:6px;background:var(--soft);border-radius:99px;overflow:hidden;margin-bottom:18px}
+.chk .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4f46e5,#06b6d4);transition:width .25s}
+.chk .step{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.chk h2{margin:6px 0 6px;font-size:24px;line-height:1.3;color:var(--ink)}
+.chk .help{color:var(--muted);margin:0 0 16px;font-size:16px}
+.chk label.opt{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--line);border-radius:12px;margin:0 0 10px;cursor:pointer;line-height:1.5}
+.chk label.opt:hover{border-color:var(--brand)}
+.chk label.opt:has(input:checked){border-color:var(--brand);background:#f3f2ff}
+.chk label.opt input{margin-top:5px;flex:none;accent-color:#4f46e5}
+.chk label.opt small{display:block;color:var(--muted);font-size:14px}
+.chk .row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.chk button{font:inherit;font-weight:700;border-radius:12px;padding:12px 20px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.chk button.go{background:linear-gradient(135deg,#4f46e5,#06b6d4);color:#fff;border:0}
+.chk button:disabled{opacity:.45;cursor:not-allowed}
+.chk .badge{display:inline-block;font-size:13px;font-weight:800;padding:4px 10px;border-radius:99px;background:#eef2ff;color:#3730a3}
+.chk .badge.red{background:#fee2e2;color:#991b1b}.chk .badge.green{background:#dcfce7;color:#166534}.chk .badge.amber{background:#fef3c7;color:#92400e}
+.chk .res h3{margin:22px 0 6px;font-size:18px;color:var(--ink)}
+.chk .res ul{margin:0 0 6px;padding-left:20px}.chk .res li{margin:0 0 6px}
+.chk .disc{margin-top:22px;padding:14px 16px;border-radius:12px;background:var(--soft);font-size:15px;color:var(--muted)}
+.chk-static{max-width:720px;margin:0 auto;padding:8px 20px 8px;font-size:17px}
+</style>
+<style>.chk [hidden]{display:none!important}.chk input.em{width:100%;box-sizing:border-box;font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius:12px;margin:6px 0 12px}.chk .sum{margin:0 0 14px;padding:0;list-style:none}.chk .sum li{padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}.chk .sum b{display:block;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.05em}.chk .err{color:#b00020;margin:8px 0 0}.chk .price{font-size:15px;color:var(--muted);margin:0 0 12px}</style>
+<div class='chk' id='chk'>
+<noscript><div class='card'><p>This tool needs JavaScript. Without it, read our free guide on <a href='/guides/which-ai-laws-apply-to-you/'>which AI laws apply to your business</a>.</p></div></noscript>
+<div class='card' id='card' aria-live='polite'></div>
+<div class='pay' id='pay' hidden>
+<div class='pay-head'>__MARK__<div><strong>Personal AI law report</strong><span>__PRICE_LABEL__ one-time</span></div></div>
+<div class='pay-body'>
+<div class='pay-load' id='payload'><div class='pay-mark'>__MARK__</div><p>Preparing your secure checkout&hellip;</p></div>
+<div class='checkout-container'></div>
+<div class='pay-done' id='paydone' hidden><h3 id='donehead'>Thank you. Building your report&hellip;</h3><div id='donebody'><p>This usually takes a few seconds. Please keep this page open.</p></div></div>
+</div>
+<p class='fine'>Secure payment by Paddle, our Merchant of Record. Taxes added where they apply. See the <a href='/refund-policy/'>30-day refund policy</a>, <a href='/terms/'>terms</a> and <a href='/privacy/'>privacy policy</a>.</p>
+</div>
+</div>
+<div class='chk-static'>
+<h2>What you get</h2>
+<p>A written report for your situation, covering the EU, the United States (federal and the states you pick), the UK, Canada and China. For each region it says whether the rules are likely to apply to you, your likely role, what you need to know, the dates that matter, the penalties, and links to the official sources. It appears on this page as soon as you pay and a copy is emailed to you.</p>
+<h2>How it works</h2>
+<p>Answer about a dozen questions for free. At the end you see a summary of your answers and pay __PRICE_LABEL__ once. The report is built from the answers you gave, so it is only as accurate as they are.</p>
+<h2>What it is not</h2>
+<p>It explains the rules. It does not produce compliance documents or checklists, and it is not legal advice. The free <a href='/tools/eu-ai-act-checker/'>EU</a> and <a href='/tools/us-ai-law-checker/'>US</a> checkers stay free. This report goes further by covering more regions in one place and giving you a saved, written answer.</p>
+<p>We store your answers and email address to build and deliver your report. See the <a href='/privacy/'>privacy policy</a> and <a href='/disclaimer/'>disclaimer</a>.</p>
+</div>
+<script src='https://cdn.paddle.com/paddle/v2/paddle.js'></script>
+<script>
+(function(){
+var CFG={token:__TOKEN_JSON__,price:__PRICE_JSON__,sandbox:__SANDBOX__};
+var REG=[['eu','The EU or EEA'],['uk','The United Kingdom'],['us','The United States'],['ca','Canada'],['cn','China'],['other','Somewhere else']];
+var Q={
+ base:{t:'Where is your organisation based?',h:'Where you are legally established or have your main place of business.',o:REG},
+ markets:{t:'Where are your users, customers, employees or the people affected?',h:'Tick every place. The rules often follow your users, not your office.',multi:1,o:REG},
+ states:{t:'Which US states?',h:'Tick every state where you have customers, employees or applicants.',multi:1,excl:'OT',o:[['CA','California'],['CO','Colorado'],['TX','Texas'],['IL','Illinois'],['NY','New York (state or New York City)'],['CT','Connecticut'],['WA','Washington'],['OT','Other states only']]},
+ role:{t:'What is your role?',h:'Pick the closest one. One company can have different roles for different systems.',o:[['provider','I build it, or have it built, and offer it under my own name'],['deployer','I use a system built by someone else in my business'],['importer','I bring a non-EU system into the EU, or resell or distribute it'],['modifier','I put my brand on someone else\'s system, or change its purpose'],['personal','Personal use, pure scientific research, or military and national security only']]},
+ what:{t:'What does the AI do?',h:'Tick everything that applies.',multi:1,excl:'none',o:[
+  ['ban','Manipulates people, scores people socially, scrapes faces from the internet, guesses emotions at work or school, or predicts crime from profiling alone'],
+  ['a1','Is a safety part of a regulated product, such as a medical device, machine, toy or vehicle'],
+  ['emp','Helps decide on hiring, promotion, pay, discipline or firing'],
+  ['cons','Helps decide on credit, insurance, housing, health care, education or essential services'],
+  ['a3o','Is used for biometric identification, law enforcement, migration, justice, public benefits or critical infrastructure'],
+  ['gpai','Is a general-purpose AI model that can be used for many tasks'],
+  ['chat','Is a public chatbot or an AI companion'],
+  ['gen','Generates text, images, audio or video for the public'],
+  ['front','Is a very large model I train myself'],
+  ['none','None of the above']]},
+ how:{t:'How is the system offered?',h:'',o:[['prod','As a product people buy, download or install'],['svc','As a service, such as an app, SaaS or API'],['int','As an internal tool used only inside my organisation']]},
+ human:{t:'How much do people rely on the AI output for decisions about people?',h:'',o:[['main','The AI decides, or its output is the main basis for the decision'],['review','A person reviews it and can really change the outcome'],['narrow','It only does a narrow or preparatory task, such as sorting or formatting']]},
+ prof:{t:'Does it profile people?',h:'Profiling means automatically assessing aspects of a person such as performance, reliability, behaviour, interests or health.',o:[['yes','Yes'],['no','No']]},
+ who:{t:'Who is affected by or uses the AI?',h:'Tick all that apply.',multi:1,o:[['con','Consumers or members of the public'],['wrk','Workers or job applicants'],['kid','Children or teenagers'],['biz','Businesses only']]},
+ scale:{t:'How large is your model and your business?',h:'California and New York frontier laws target only the biggest developers.',o:[['big','Trained with more than 10^26 operations, and more than $500 million in annual revenue'],['mid','Trained with more than 10^26 operations, but under $500 million in annual revenue'],['small','Smaller than that']]},
+ size:{t:'How big is your organisation?',h:'Some EU rules are lighter for smaller companies.',o:[['sme','Fewer than 250 employees'],['smid','250 to 749 employees'],['large','750 employees or more']]},
+ pd:{t:'Does the AI process personal data?',h:'Information about identifiable people, including for training.',o:[['yes','Yes'],['no','No'],['unsure','Not sure']]}
+};
+var ORDER=['base','markets','states','role','what','how','human','prof','who','scale','size','pd'];
+var A={},cur='base',hist=[],card=document.getElementById('card'),curId='',pollTimer;
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function has(k){return (A.what||[]).indexOf(k)>-1}
+function decides(){return has('emp')||has('cons')||has('a3o')}
+function usIn(){return A.base==='us'||(A.markets||[]).indexOf('us')>-1}
+function next(k){
+ if(k==='base')return 'markets';
+ if(k==='markets')return usIn()?'states':'role';
+ if(k==='states')return 'role';
+ if(k==='role')return A.role==='personal'?'review':'what';
+ if(k==='what')return 'how';
+ if(k==='how')return decides()?'human':'who';
+ if(k==='human')return A.human==='narrow'?'prof':'who';
+ if(k==='prof')return 'who';
+ if(k==='who')return (has('front')&&(A.role==='provider'||A.role==='modifier'))?'scale':'size';
+ if(k==='scale')return 'size';
+ if(k==='size')return 'pd';
+ return 'review';
+}
+function label(k,v){var q=Q[k],out=[];(q.o||[]).forEach(function(o){if(Array.isArray(v)?v.indexOf(o[0])>-1:v===o[0])out.push(o[1])});return out.join('; ')}
+function render(){
+ if(cur==='review')return review();
+ var q=Q[cur],n=hist.length+1;
+ var h='<div class="prog"><i style="width:'+Math.min(95,n*8)+'%"></i></div><div class="step">Question '+n+'</div><h2>'+esc(q.t)+'</h2>'+(q.h?'<p class="help">'+esc(q.h)+'</p>':'')+'<form>';
+ q.o.forEach(function(o){h+='<label class="opt"><input type="'+(q.multi?'checkbox':'radio')+'" name="q" value="'+o[0]+'"><span>'+esc(o[1])+'</span></label>'});
+ h+='</form><div class="row">'+(hist.length?'<button type="button" id="bk">Back</button>':'')+'<button type="button" class="go" id="nx" disabled>Next</button></div>';
+ card.innerHTML=h;
+ var inputs=card.querySelectorAll('input'),nx=document.getElementById('nx'),prev=A[cur],excl=q.excl||'';
+ inputs.forEach(function(i){ if(prev&&(q.multi?prev.indexOf(i.value)>-1:prev===i.value))i.checked=true; i.addEventListener('change',function(){
+  if(q.multi&&excl){ if(i.value===excl&&i.checked)inputs.forEach(function(x){if(x!==i)x.checked=false}); else if(i.checked)inputs.forEach(function(x){if(x.value===excl)x.checked=false}); }
+  upd()})});
+ function upd(){var any=false;inputs.forEach(function(i){if(i.checked)any=true});nx.disabled=!any}
+ upd();
+ nx.onclick=function(){var v=[];inputs.forEach(function(i){if(i.checked)v.push(i.value)});A[cur]=q.multi?v:v[0];hist.push(cur);cur=next(cur);render();window.scrollTo({top:card.offsetTop-80,behavior:'smooth'})};
+ var bk=document.getElementById('bk');if(bk)bk.onclick=function(){cur=hist.pop();render()};
+}
+function payload(){
+ var p={base:A.base,markets:A.markets,role:A.role};
+ if(usIn())p.states=A.states||[];
+ if(A.role!=='personal'){p.what=A.what;p.how=A.how;p.who=A.who;p.size=A.size;p.pd=A.pd;if(decides()){p.human=A.human;if(A.human==='narrow')p.prof=A.prof}if(has('front')&&(A.role==='provider'||A.role==='modifier'))p.scale=A.scale}
+ return p;
+}
+function review(){
+ var h='<div class="prog"><i style="width:100%"></i></div><h2>Check your answers, then get your report</h2><ul class="sum">';
+ hist.forEach(function(k){h+='<li><b>'+esc(Q[k].t)+'</b>'+esc(label(k,A[k]))+'</li>'});
+ h+='</ul><label for="em"><strong>Your email address</strong></label><input class="em" id="em" type="email" autocomplete="email" placeholder="you@company.com"><p class="price">The report appears here as soon as you pay, and a copy is emailed to this address. One payment of __PRICE_LABEL__, no subscription.</p><div class="row"><button type="button" id="bk">Back</button><button type="button" class="go" id="buy">Pay __PRICE_LABEL__ and get my report</button></div><div class="err" id="err" role="alert"></div>';
+ card.innerHTML=h;
+ document.getElementById('bk').onclick=function(){cur=hist.pop();render()};
+ document.getElementById('buy').onclick=start;
+}
+function showErr(m){document.getElementById('err').textContent=m;document.getElementById('buy').disabled=false}
+function start(){
+ var email=document.getElementById('em').value.trim();
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){showErr('Please enter a valid email address.');return}
+ var b=document.getElementById('buy');b.disabled=true;document.getElementById('err').textContent='';
+ var p=payload();p.email=email;
+ fetch('/report/api/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers:p})}).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){
+  if(!x.ok){showErr(x.j.error||'Something went wrong. Please try again.');return}
+  curId=x.j.id;openCheckout(email);
+ }).catch(function(){showErr('Something went wrong. Please try again.')});
+}
+var pay=document.getElementById('pay'),load=document.getElementById('payload'),done=document.getElementById('paydone'),box=document.querySelector('.checkout-container'),ready=false,timer;
+function fail(){load.hidden=false;load.innerHTML='<p>The checkout could not load. Please refresh the page, or email isaac@actaicompliance.com and we will help.</p>'}
+try{
+ if(CFG.sandbox)Paddle.Environment.set('sandbox');
+ Paddle.Initialize({token:CFG.token,eventCallback:function(e){
+  if(!e||!e.name)return;
+  if(e.name==='checkout.loaded'){ready=true;clearTimeout(timer);load.hidden=true}
+  if(e.name==='checkout.completed'){box.hidden=true;done.hidden=false;pay.scrollIntoView({behavior:'smooth',block:'start'});poll(0)}
+  if(e.name==='checkout.error'){fail()}
+ }});
+}catch(err){}
+function openCheckout(email){
+ card.hidden=true;pay.hidden=false;load.hidden=false;pay.scrollIntoView({behavior:'smooth',block:'start'});
+ timer=setTimeout(function(){if(!ready)fail()},15000);
+ try{Paddle.Checkout.open({settings:{displayMode:'inline',variant:'one-page',frameTarget:'checkout-container',frameInitialHeight:'480',frameStyle:'width:100%;min-width:312px;background-color:transparent;border:none;',theme:'light'},items:[{priceId:CFG.price,quantity:1}],customData:{report_id:curId},customer:{email:email}})}catch(err){fail()}
+}
+function poll(n){
+ fetch('/report/api/status?id='+curId).then(function(r){return r.json()}).then(function(j){
+  if(j.status==='ready'){document.getElementById('donehead').textContent='Your report is ready';document.getElementById('donebody').innerHTML=j.html+'<p class="fine">A copy has also been emailed to you. Keep the link in that email to open it again.</p>';return}
+  if(n<48){setTimeout(function(){poll(n+1)},2500)}else{document.getElementById('donebody').innerHTML='<p>Your payment went through. Your report is taking longer than usual. It will be emailed to you shortly. If it has not arrived in 15 minutes, write to isaac@actaicompliance.com.</p>'}
+ }).catch(function(){if(n<48)setTimeout(function(){poll(n+1)},4000)});
+}
+render();
+})();
+</script>

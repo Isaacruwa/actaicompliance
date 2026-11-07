@@ -1,9 +1,9 @@
 ---
 title: Terms and Conditions
 slug: terms
-description: The terms that apply when you use ActAI Compliance or buy the AI Regulation Tracker.
+description: The terms that apply when you use ActAI Compliance or buy the AI Regulation Tracker or a personal AI law report.
 ---
-These terms apply to your use of actaicompliance.com (the "site") and to any paid product we sell through it, including the AI Regulation Tracker. "We", "us" and "ActAI Compliance" mean the seller of those products. When you buy, you enter into a contract with us. By using the site or buying, you accept these terms.
+These terms apply to your use of actaicompliance.com (the "site") and to any paid product we sell through it, including the AI Regulation Tracker and the Personal AI Law Report. "We", "us" and "ActAI Compliance" mean the seller of those products. When you buy, you enter into a contract with us. By using the site or buying, you accept these terms.
 
 ## Who we are
 ActAI Compliance is the trading name of the seller. You can contact us at isaac@actaicompliance.com. The seller's registered business details appear on your Paddle receipt and invoice.
@@ -12,10 +12,10 @@ ActAI Compliance is the trading name of the seller. You can contact us at isaac@
 Our order process is handled by our online reseller Paddle.com. Paddle.com is the Merchant of Record for all our orders. Paddle provides all customer service inquiries and handles returns and payment issues. Paddle's own buyer terms apply to your purchase.
 
 ## What we provide
-The site publishes free guides and tools about AI regulation. The AI Regulation Tracker is a paid briefing that summarises changes in AI law in plain English, with dates and links to official sources. We provide general information only. We do not give legal advice, and nothing we provide creates a lawyer-client relationship. See our [disclaimer](/disclaimer/).
+The site publishes free guides and tools about AI regulation. The AI Regulation Tracker is a paid briefing that summarises changes in AI law in plain English, with dates and links to official sources. The Personal AI Law Report is a one-time written report built from the answers you give in a questionnaire. It is shown on screen and emailed to you once payment is confirmed, reflects the law as we understand it on the date shown in the report, depends on your answers being accurate and complete, and is not updated after delivery. We provide general information only. We do not give legal advice, and nothing we provide creates a lawyer-client relationship. See our [disclaimer](/disclaimer/).
 
 ## Payment and subscriptions
-Prices are shown on the product page before you buy, and taxes are added at checkout where they apply. Subscriptions renew each billing period until you cancel. You can cancel at any time through the link in your Paddle receipt, and your access then continues until the end of the period you have paid for. Our [refund policy](/refund-policy/) applies to every purchase.
+Prices are shown on the product page before you buy, and taxes are added at checkout where they apply. One-time products such as the personal report are a single payment with no renewal. Subscriptions renew each billing period until you cancel. You can cancel at any time through the link in your Paddle receipt, and your access then continues until the end of the period you have paid for. Our [refund policy](/refund-policy/) applies to every purchase.
 
 ## Your use of the site and products
 You agree not to use the site or our products for unlawful purposes, fraud or spam, to infringe anyone's intellectual property, or to interfere with the security or operation of the site. You may not resell, republish or share paid briefings beyond your own organisation without our written permission. Our free guides are licensed under CC BY 4.0, as stated on the site.

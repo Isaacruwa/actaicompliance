@@ -252,7 +252,9 @@ const partnersStrip = `<div class='team-strip'><span>From our team:</span>${PART
 const PADDLE = JSON.parse(fs.readFileSync(path.join(__dirname, 'content', 'config', 'paddle.json'), 'utf8'));
 const TRACKER_LIVE = !!(PADDLE.clientToken && PADDLE.priceId && PADDLE.priceLabel);
 const trackerCta = TRACKER_LIVE ? "<aside style='border:1px solid #d7dcea;border-radius:14px;padding:18px 20px;margin:32px 0;background:#f6f7fb;color:#1f2937'><strong style='display:block;font-size:18px;margin-bottom:6px'>Want rule changes sent to you?</strong><span style='display:block;line-height:1.55'>AI rules keep moving. The AI Regulation Tracker is a monthly briefing on what changed, which dates moved and what to do about it. " + PADDLE.priceLabel + " " + PADDLE.billingNote + ", cancel any time.</span><a href='/tracker/' style='display:inline-block;margin-top:12px;font-weight:600'>See the AI Regulation Tracker &rarr;</a></aside>" : '';
-const trackerFooter = TRACKER_LIVE ? "<a href='/tracker/'>AI Regulation Tracker</a>" : '';
+const REPORT_LIVE = !!(PADDLE.clientToken && PADDLE.reportPriceId && PADDLE.reportPriceLabel);
+const reportCta = REPORT_LIVE ? "<aside style='max-width:720px;margin:8px auto 28px;border:1px solid #d7dcea;border-radius:14px;padding:18px 20px;background:#f6f7fb;color:#1f2937'><strong style='display:block;font-size:18px;margin-bottom:6px'>Want the answer for every region, in writing?</strong><span style='display:block;line-height:1.55'>Get a personal report covering the EU, US, UK, Canada and China, built from your answers and emailed to you. " + PADDLE.reportPriceLabel + ", one-time.</span><a href='/report/' style='display:inline-block;margin-top:12px;font-weight:600'>Get my personal AI law report &rarr;</a></aside>" : '';
+const trackerFooter = (TRACKER_LIVE ? "<a href='/tracker/'>AI Regulation Tracker</a>" : '') + (REPORT_LIVE ? "<a href='/report/'>Personal AI law report</a>" : '');
 
 function layout({ title, description, route, body, type = 'website', extraHead = '', guides = [] }) {
   const fullTitle = route === '/' ? SITE.name + ' | ' + SITE.tagline : title + ' | ' + SITE.name;
@@ -364,7 +366,7 @@ for (const pg of readDir('pages')) {
   const route = '/tools/eu-ai-act-checker/';
   const title = 'Do I Need to Comply with the EU AI Act?';
   const description = 'A free seven-question check that shows whether the EU AI Act applies to you, your likely role, key obligations, dates and official sources. Educational, not legal advice.';
-  const body = `<div class='page-hero'><div class='container'><h1>${esc(title)}</h1><p class='lead'>${esc(description)}</p></div></div>` + toolHtml;
+  const body = `<div class='page-hero'><div class='container'><h1>${esc(title)}</h1><p class='lead'>${esc(description)}</p></div></div>` + toolHtml + reportCta;
   write('tools/eu-ai-act-checker/index.html', layout({ title, description, route, body, guides: posts }));
   urls.push(route);
 }
@@ -374,9 +376,22 @@ for (const pg of readDir('pages')) {
   const route = '/tools/us-ai-law-checker/';
   const title = 'Which US AI Laws Apply to Me?';
   const description = 'A free six-question check that shows which US state and federal AI laws to look at first, based on where your users are and what your AI does. Educational, not legal advice.';
-  const body = `<div class='page-hero'><div class='container'><h1>${esc(title)}</h1><p class='lead'>${esc(description)}</p></div></div>` + toolHtml;
+  const body = `<div class='page-hero'><div class='container'><h1>${esc(title)}</h1><p class='lead'>${esc(description)}</p></div></div>` + toolHtml + reportCta;
   write('tools/us-ai-law-checker/index.html', layout({ title, description, route, body, guides: posts }));
   urls.push(route);
+}
+{
+  const route = '/report/';
+  const title = 'Your Personal AI Law Report';
+  const description = 'Answer a dozen questions and get a written report on which AI laws apply to you in the EU, US, UK, Canada and China, with your likely role, dates, penalties and official sources.';
+  let toolHtml = fs.readFileSync(path.join(__dirname, 'content', 'tools', 'personal-report.html'), 'utf8');
+  toolHtml = toolHtml.split('__MARK__').join(MARK).split('__PRICE_LABEL__').join(esc(PADDLE.reportPriceLabel || ''))
+    .split('__TOKEN_JSON__').join(JSON.stringify(PADDLE.clientToken || '')).split('__PRICE_JSON__').join(JSON.stringify(PADDLE.reportPriceId || ''))
+    .split('__SANDBOX__').join(PADDLE.environment === 'sandbox' ? 'true' : 'false');
+  const inner = REPORT_LIVE ? toolHtml : `<div class='chk-static'><p>The personal report is not open yet. In the meantime, try the free <a href='/tools/eu-ai-act-checker/'>EU AI Act checker</a> and <a href='/tools/us-ai-law-checker/'>US AI law checker</a>.</p></div>`;
+  const body = `<div class='page-hero'><div class='container'><h1>${esc(title)}</h1><p class='lead'>${esc(description)}</p></div></div>` + inner;
+  write('report/index.html', layout({ title, description, route, body, extraHead: REPORT_LIVE ? '' : "<meta name='robots' content='noindex'>", guides: posts }));
+  if (REPORT_LIVE) urls.push(route);
 }
 {
   const route = '/tracker/';
@@ -461,6 +476,8 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  const pth = new URL(req.url).pathname;
+  if (pth.startsWith('/admin') || pth.startsWith('/report/api/') || pth.startsWith('/report/r/') || pth.startsWith('/paddle/') || pth.startsWith('/unsubscribe')) return;
   if (req.mode === 'navigate') {
     e.respondWith(fetch(req).then(res => { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); return res; }).catch(() => caches.match(req).then(r => r || caches.match('/offline/'))));
     return;

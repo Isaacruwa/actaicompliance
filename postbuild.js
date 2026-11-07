@@ -125,6 +125,7 @@ write('data/guides.json', JSON.stringify({ publisher: NAME, url: SITE + '/', lic
 /* ---- sitemap with lastmod and images ---- */
 const PADCFG = JSON.parse(fs.readFileSync(path.join(ROOT, 'content', 'config', 'paddle.json'), 'utf8'));
 const TRACKER_ON = !!(PADCFG.clientToken && PADCFG.priceId && PADCFG.priceLabel);
+const REPORT_ON = !!(PADCFG.clientToken && PADCFG.reportPriceId && PADCFG.reportPriceLabel);
 const entries = [
   { loc: SITE + '/', lastmod: latest, priority: '1.0', images: [SITE + '/og/default.jpg'] },
   ...posts.map(p => ({ loc: urlOf(p), lastmod: p.meta.updated || p.meta.date, priority: '0.9', images: [ogOf(p), SITE + '/img/' + p.meta.slug + '.jpg'] })),
@@ -133,6 +134,7 @@ const entries = [
   { loc: SITE + '/open-data/', lastmod: VERIFIED, priority: '0.6', images: [] },
   { loc: SITE + '/about/', lastmod: VERIFIED, priority: '0.5', images: [] },
   ...(TRACKER_ON ? [{ loc: SITE + '/tracker/', lastmod: VERIFIED, priority: '0.7', images: [] }] : []),
+  ...(REPORT_ON ? [{ loc: SITE + '/report/', lastmod: VERIFIED, priority: '0.7', images: [] }] : []),
   { loc: SITE + '/disclaimer/', lastmod: VERIFIED, priority: '0.3', images: [] },
   { loc: SITE + '/terms/', lastmod: VERIFIED, priority: '0.2', images: [] },
   { loc: SITE + '/refund-policy/', lastmod: VERIFIED, priority: '0.2', images: [] },

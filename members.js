@@ -1,3 +1,4 @@
+import { onReportPaid } from './reportapi.js';
 import { WELCOME_SUBJECT, WELCOME_BODY } from './welcome.js';
 // Subscriber storage (Paddle webhooks), password-protected admin page and briefing sending (Resend).
 // Secure by default: every admin route returns 503 until ADMIN_PASSWORD (12+ chars) and the DB binding are configured.
@@ -57,6 +58,11 @@ async function handlePaddleWebhook(request, env) {
       await env.DB.prepare('INSERT INTO subscriptions (id, customer_id, status, started_at, canceled_at, next_billed_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) ON CONFLICT(id) DO UPDATE SET customer_id = ?2, status = ?3, started_at = COALESCE(?4, started_at), canceled_at = ?5, next_billed_at = ?6, updated_at = ?7')
         .bind(d.id, d.customer_id || '', d.status || '', d.started_at || d.created_at || null, d.canceled_at || null, d.next_billed_at || null, now).run();
     }
+  }
+  if (type === 'transaction.completed' && d.custom_data && d.custom_data.report_id) {
+    let delivered = false;
+    try { delivered = await onReportPaid(env, d.custom_data.report_id, d.id); } catch { delivered = false; }
+    if (!delivered) return new Response('Report delivery failed, retry', { status: 500 });
   }
   let welcomed = true;
   try { welcomed = await maybeWelcome(env, type.startsWith('customer.') ? d.id : (type.startsWith('subscription.') ? d.customer_id : '')); } catch { welcomed = false; }

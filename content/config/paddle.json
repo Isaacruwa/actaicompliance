@@ -3,5 +3,7 @@
   "clientToken": "live_787e935deac270d634b1d37492c",
   "priceId": "pri_01m6g0krd9amepybr4c5sqafvp",
   "priceLabel": "$39",
-  "billingNote": "per month"
+  "billingNote": "per month",
+  "reportPriceId": "",
+  "reportPriceLabel": "$49"
 }
