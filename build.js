@@ -336,13 +336,72 @@ const posts = readDir('posts').sort((a, b) => {
 const urls = ['/'];
 const precache = ['/', '/offline/', '/about/', cssUrl, '/favicon.svg', '/icons/icon-192.png', '/icons/icon-512.png'];
 
+
+/* ---------- Automatic internal links ---------- */
+const LINK_TARGETS = {
+  'eu-ai-act-explained': ['EU AI Act'],
+  'eu-ai-act-annex-iii-high-risk-ai': ['Annex III'],
+  'eu-ai-act-annex-iv-technical-documentation': ['Annex IV', 'technical documentation'],
+  'eu-ai-act-conformity-assessment': ['conformity assessment'],
+  'is-my-ai-system-high-risk': ['high-risk AI system', 'high-risk system'],
+  'which-ai-laws-apply-to-you': ['which AI laws apply'],
+  'us-state-ai-laws': ['state AI laws', 'Colorado AI Act'],
+  'us-ai-regulation': ['US AI regulation'],
+  'uk-ai-regulation': ['UK AI regulation'],
+  'canada-ai-regulation': ['Canada AI regulation', "Canada's AI"],
+  'china-ai-regulation': ['China AI regulation', "China's AI"],
+  'eu-ai-act-2-december-2026-deadline': ['2 December 2026']
+};
+const TOOL_TARGETS = { '/tools/eu-ai-act-checker/': ['EU AI Act checker'], '/tools/us-ai-law-checker/': ['US AI law checker'] };
+function autoLink(html, meta, allPosts) {
+  const targets = [];
+  for (const p of allPosts) {
+    if (p.meta.slug === meta.slug) continue;
+    const extra = (p.meta.linkphrases || '').split('|').map(x => x.trim()).filter(Boolean);
+    const phrases = [...(LINK_TARGETS[p.meta.slug] || []), ...extra];
+    if (phrases.length) targets.push({ href: '/guides/' + p.meta.slug + '/', phrases });
+  }
+  for (const [href, phrases] of Object.entries(TOOL_TARGETS)) targets.push({ href, phrases });
+  const pending = targets.filter(t => !html.includes("href='" + t.href + "'"));
+  const parts = html.split(/(<[^>]+>)/);
+  let skip = 0, para = 0, made = 0;
+  for (let i = 0; i < parts.length && made < 5; i++) {
+    const part = parts[i];
+    if (part.startsWith('<')) {
+      const tag = (part.match(/^<\/?([a-z0-9]+)/i) || [])[1];
+      if (!tag) continue;
+      const closing = part.startsWith('</');
+      if (/^(a|h[1-6]|code|pre|nav|figure|script|style|button|aside)$/i.test(tag)) skip += closing ? -1 : 1;
+      else if (/^(p|li)$/i.test(tag)) para += closing ? -1 : 1;
+      continue;
+    }
+    if (skip > 0 || para <= 0 || !part.trim()) continue;
+    for (let k = 0; k < pending.length && made < 5; k++) {
+      const t = pending[k];
+      let best = null;
+      for (const ph of t.phrases) {
+        const re = new RegExp('(^|[^A-Za-z0-9-])(' + ph.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')(?![A-Za-z0-9-])', 'i');
+        const mm = re.exec(part);
+        if (mm && (!best || mm.index < best.index)) best = { index: mm.index + mm[1].length, text: mm[2] };
+      }
+      if (!best) continue;
+      parts[i] = part.slice(0, best.index) + "<a href='" + t.href + "'>" + best.text + '</a>' + part.slice(best.index + best.text.length);
+      pending.splice(k, 1);
+      made++;
+      break;
+    }
+  }
+  return parts.join('');
+}
+
 for (const p of posts) {
   const m = p.meta;
   const route = '/guides/' + m.slug + '/';
-  const { html, headings } = md(p.body);
+  const { html: rawHtml, headings } = md(p.body);
+  const html = autoLink(rawHtml, m, posts);
   const ld = JSON.stringify({ '@context': 'https://schema.org', '@type': 'Article', headline: m.title, description: m.description, datePublished: m.date, dateModified: m.updated || m.date, mainEntityOfPage: SITE.url + route, publisher: { '@type': 'Organization', name: SITE.name } });
   const toc = headings.length >= 3 ? `<nav class='toc'><strong>In this guide</strong><ol>${headings.map(h => `<li><a href='#${h.id}'>${esc(h.text)}</a></li>`).join('')}</ol></nav>` : '';
-  const related = posts.filter(x => x.meta.slug !== m.slug).slice(0, 3).map(guideCard).join('');
+  const related = posts.filter(x => x.meta.slug !== m.slug).sort((a, b) => (b.meta.region === m.region) - (a.meta.region === m.region)).slice(0, 3).map(guideCard).join('');
   const body = `<div class='page-hero'><div class='container'><div class='crumbs'><a href='/'>Home</a> / <a href='/#guides'>Guides</a></div><span class='badge'>${FLAGS[m.region] || '🌐'} ${esc(m.region || '')}</span><h1>${esc(m.title)}</h1><p class='lead'>${esc(m.description)}</p><div class='badges'><span>Reviewed ${fmtDate(m.updated || m.date)}</span><span>&middot;</span><span>${readTime(p.body)} min read</span></div></div></div><article class='prose'>${toc}${html}${m.eu === 'true' ? callout : ''}${trackerCta}</article><div class='note'>This article is general information, not legal advice. Rules change often, so check official sources before you rely on it.</div><section class='section'><div class='container'><div class='eyebrow'>Keep reading</div><h2 class='title'>More guides</h2><div class='grid'>${related}</div></div></section>`;
   write('guides/' + m.slug + '/index.html', layout({ title: m.title, description: m.description, route, body, type: 'article', extraHead: `<script type='application/ld+json'>${ld}</script>`, guides: posts }));
   urls.push(route);

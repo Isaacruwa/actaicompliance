@@ -8,6 +8,7 @@
     "not_found_handling": "404-page",
     "run_worker_first": ["/admin", "/admin/*", "/paddle/webhook", "/report/api/*", "/report/r/*", "/unsubscribe", "/a2a", "/a2a/", "/mcp", "/mcp/", "/", "/guides/", "/guides/*/", "/about/", "/disclaimer/", "/open-data/"]
   },
+  "triggers": { "crons": ["*/30 * * * *"] },
   "d1_databases": [
     { "binding": "DB", "database_name": "actai-subscribers", "database_id": "bf8feb8a-15db-4ff7-bf39-819076702fc2" }
   ]

@@ -1,5 +1,6 @@
 import { handleReportApi } from './reportapi.js';
 import { handleMembers } from './members.js';
+import { runIndexNow } from './indexnow.js';
 // Minimal A2A (Agent2Agent) JSON-RPC endpoint. Everything else is served as static files.
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -194,6 +195,9 @@ function canonicalRedirect(request, url) {
 }
 
 export default {
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(runIndexNow(env).catch(() => {}));
+  },
   async fetch(request, env) {
     const url = new URL(request.url);
     const redirect = canonicalRedirect(request, url);
