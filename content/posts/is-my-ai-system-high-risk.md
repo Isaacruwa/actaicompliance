@@ -38,8 +38,3 @@ Even if a system is not high-risk, Article 50 transparency rules can apply. Thes
 - **Minimal risk:** no specific AI Act duties, though other laws such as GDPR still apply.
 
 Want a quick automated first pass? Attestly (our product) has an [EU AI Act risk checker](https://www.attestly.online/eu-ai-act-risk-checker?utm_source=actaicompliance). Treat any tool result as a starting point and confirm it against the official text.
-
-## Related guides from Attestly
-Attestly (our product) publishes practical guides on the same topic:
-- [High-risk AI systems under Annex III: classification examples](https://www.attestly.online/guides/high-risk-ai-examples?utm_source=actaicompliance)
-- [Glossary: high-risk AI system](https://www.attestly.online/glossary/high-risk-ai-system?utm_source=actaicompliance)
