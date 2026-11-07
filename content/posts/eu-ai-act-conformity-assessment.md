@@ -63,9 +63,3 @@ The Commission's NANDO database lists notified bodies designated by EU member st
 
 ### Do I have to repeat the assessment if I change the system?
 A new assessment is needed after a substantial modification. Changes you planned in advance and recorded in the [technical documentation](/guides/eu-ai-act-annex-iv-technical-documentation/) do not count as substantial, which is why recording planned changes matters.
-
-## Related guides from Attestly
-Attestly (our product) publishes practical guides on the same topic:
-- [Glossary: conformity assessment](https://www.attestly.online/glossary/conformity-assessment?utm_source=actaicompliance)
-- [Glossary: audit evidence package](https://www.attestly.online/glossary/audit-evidence-package?utm_source=actaicompliance)
-- [Annex IV explained: every required section](https://www.attestly.online/guides/eu-ai-act-annex-iv-explained?utm_source=actaicompliance)
