@@ -257,7 +257,7 @@ const reportCta = REPORT_LIVE ? "<aside style='max-width:720px;margin:8px auto 2
 const trackerFooter = (TRACKER_LIVE ? "<a href='/tracker/'>AI Regulation Tracker</a>" : '') + (REPORT_LIVE ? "<a href='/report/'>Personal AI law report</a>" : '');
 
 function layout({ title, description, route, body, type = 'website', extraHead = '', guides = [] }) {
-  const fullTitle = route === '/' ? SITE.name + ' | ' + SITE.tagline : title + ' | ' + SITE.name;
+  const fullTitle = route === '/' ? SITE.name + ' | ' + SITE.tagline : (title + ' | ' + SITE.name).length <= 60 ? title + ' | ' + SITE.name : title;
   const url = SITE.url + route;
   const footerGuides = guides.map(g => `<a href='/guides/${g.meta.slug}/'>${esc(g.meta.title.split(':')[0])}</a>`).join('');
   return `<!doctype html>
