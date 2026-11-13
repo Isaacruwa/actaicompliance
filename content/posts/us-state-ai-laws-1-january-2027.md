@@ -81,3 +81,4 @@ Several laws you may have heard about do not start in 2027. Texas's TRAIGA, Cali
 Other states have AI rules on deepfakes, elections, health care and employment. If you operate in several countries, start with [which AI laws apply to you](/guides/which-ai-laws-apply-to-you/). If you also sell into Europe, the next date there is 2 December 2026, covered in [our EU guide](/guides/eu-ai-act-2-december-2026-deadline/).
 
 Primary sources: the [Colorado General Assembly](https://leg.colorado.gov/) for the text of SB 26-189 and HB 26-1263, the [Colorado Attorney General](https://coag.gov/) for the rulemaking, the [California Privacy Protection Agency](https://cppa.ca.gov/) for the ADMT rules, and the [New York State Senate](https://www.nysenate.gov/) for the RAISE Act. This guide relies on law-firm and policy-tracker summaries, so check those sources, or ask a qualified lawyer, before you rely on any date or duty here.
+
