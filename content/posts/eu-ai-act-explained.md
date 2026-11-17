@@ -35,15 +35,13 @@ Most of the duties depend on your role, so work this out first.
 Separate rules apply to general-purpose AI models, and those obligations have applied since 2 August 2025.
 
 ## The EU AI Act timeline
-| Date | What happens |
-|---|---|
-| 1 August 2024 | The Act enters into force. |
-| 2 February 2025 | Bans on prohibited practices start to apply. |
-| 2 August 2025 | Rules for general-purpose AI models and the governance structure start to apply. |
-| 2 August 2026 | Transparency duties under Article 50 apply. |
-| 2 December 2026 | Grace period for marking AI-generated content ends for systems already on the market. New bans on nudifier and child-abuse AI start. |
-| 2 December 2027 | High-risk rules for Annex III systems apply (moved from 2 August 2026). |
-| 2 August 2028 | High-risk rules for AI built into regulated products in Annex I apply. |
+- **1 August 2024:** the Act enters into force.
+- **2 February 2025:** bans on prohibited practices start to apply.
+- **2 August 2025:** rules for general-purpose AI models and the governance structure start to apply.
+- **2 August 2026:** transparency duties under Article 50 apply.
+- **2 December 2026:** the grace period for marking AI-generated content ends for systems already on the market, and new bans on nudifier and child-abuse AI start.
+- **2 December 2027:** high-risk rules for Annex III systems apply (moved from 2 August 2026).
+- **2 August 2028:** high-risk rules for AI built into regulated products in Annex I apply.
 
 ## What changed in 2026
 The EU adopted the AI Omnibus (Regulation (EU) 2026/1744), which entered into force on 27 July 2026. Its biggest effect is on the high-risk deadlines:
